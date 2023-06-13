@@ -1,3 +1,9 @@
+# DAOSTAR <> REPUTABLE
+
+We have put information on the precise deliverables in the issues. Even if you are working on something that needs to be deployed elsewhere, e.g. in the DAOstar repo, please write ALL CODE to this repository. This is for reporting purposes to the EU.
+
+Here is the D2 specification document specifying the complete deliverable: https://docs.google.com/document/d/1rsHtVRZ-yZ3QifXg4EoGnbc3x2KKFY3y/edit. 
+
 # REPUTABLE
 
 
