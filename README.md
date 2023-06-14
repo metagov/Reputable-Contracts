@@ -43,3 +43,33 @@ The callback functions contains **two** parameters:
 This contract also contains the functions ``get_on_chain`` and ``get_off_chain`` which retrieve the aggregate score stored on-chain and cloud database URL respectively.
 The address for the deployed oracle smart contract must be entered for the variable ``gateway_address``. 
 
+### Development Log
+
+Smart Contracts are deployed on Sepolia Testnet
+
+#### Gateway.sol
+
+**Contract Address:**
+0x99442e120937Ae5c4cC3F73F3094efc97b0cf5ee
+
+https://sepolia.etherscan.io/address/0x99442e120937Ae5c4cC3F73F3094efc97b0cf5ee#code
+
+#### Oracle.sol
+
+**Contract Address:** 
+0xDafdC2Ae8ceEB8c4F70c8010Bcd7aD6853CeF532
+
+https://sepolia.etherscan.io/address/0xDafdC2Ae8ceEB8c4F70c8010Bcd7aD6853CeF532#code
+
+#### OnChainReputationData.sol
+
+**Contract Address:**
+0x42F7Cf57BD6C0C8d92EBb3F1Ca4166E1A6c4229B
+
+https://sepolia.etherscan.io/address/0x42F7Cf57BD6C0C8d92EBb3F1Ca4166E1A6c4229B#code
+
+#### DataService.sol
+
+**Contract Address:**
+0xf2f8b941E18693c1Dc431c93613f8DdD63D02ac8
+

@@ -1,0 +1,39 @@
+[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_seller_id",
+				"type": "uint256"
+			}
+		],
+		"name": "get_rep_data",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_seller_id",
+				"type": "uint256"
+			},
+			{
+				"name": "_score",
+				"type": "uint256"
+			}
+		],
+		"name": "add_rep_data",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]

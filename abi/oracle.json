@@ -1,0 +1,121 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "sellerId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "indi_score",
+				"type": "uint256"
+			}
+		],
+		"name": "RequestScoreEvent",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "campaignId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "sellerId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "userId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256[]",
+				"name": "array",
+				"type": "uint256[]"
+			}
+		],
+		"name": "RequestValueEvent",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_sellerId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_indi_score",
+				"type": "uint256"
+			}
+		],
+		"name": "requestScore",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_campaign_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_sellerId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_userId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "_array",
+				"type": "uint256[]"
+			}
+		],
+		"name": "requestValue",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_gateway_address",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_aggr_score",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_off_chain",
+				"type": "string"
+			}
+		],
+		"name": "returnToGateway",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
