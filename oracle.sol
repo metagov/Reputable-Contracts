@@ -32,7 +32,7 @@ contract OracleInterface {
     
     
     // Aggregate score will be returned back to the Gateway contract using this function
-    function returnToGateway(address _gateway_address, uint _aggr_score, string memory _off_chain) public {
+    function returnToGateway(address _gateway_address, string memory _aggr_score, string memory _off_chain) public {
         // require(requests_pending[_id]);
         // delete requests_pending[_id];
         
