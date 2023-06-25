@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  title: The REPUTABLE API
+  description: A simple description of REPUTABLE API
+  contact:
+    name: REPUTABLE Team
+    url: reputable.io
+    email: contact@reputable.io
+  version: '1.0'
+paths:
+  /reputation:
+    description: access reputable api
+    get:
+      description: query reputation of a service/seller
+      parameters:
+        - in: query
+          name: sellerId
+          required: true
+          schema:
+            type: integer
+            example: 11
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: the reputation of the seller
+                properties:
+                  reputation score:
+                    type: string
+                    
+  /reputation_score:
+    summary: post aggregate score to the blockchain
+    post:
+      description: Post seller aggregate score using seller id and user scores
+      parameters:
+        - in: query
+          name: sellerId
+          description: id of a seller
+          required: true
+          schema:
+            type: integer
+            example: 11
+          
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: the aggregate seller score
+                properties:
+                  aggregate score:
+                    type: integer                    
+  /verify_reputation:
+    summary: to verify reputation of a service/seller
+    description: to verify reputation of a service/seller
+    get:
+      description: to verify reputation
+      parameters:
+        - in: query
+          name: sellerId
+          required: true
+          schema:
+            type: integer
+            example: 11
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: string
+                description: receipt highlighting on-chain record/hash of reputation feedback
+                properties:
+                  transaction hash:
+                    type: string
+  /individual_score:
+    summary: get individual score of a buyer/consumer
+    get:
+      description: query individual score of a buyer
+      parameters:
+        - in: query
+          name: sellerId
+          description: id of a seller
+          required: true
+          schema:
+            type: integer
+            example: 11
+        - in: query
+          name: userId
+          description: id of a user
+          required: true
+          schema:
+            type: integer
+            example: 1234
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: the individual score of a buyer that was used to rate the seller
+                properties:
+                  individual score:
+                    type: string
+  /individual_scores:
+    summary: get individual scores relating to a buyer's aggregated score
+    get:
+      description: query individual scores used for aggregating a seller's score
+      parameters:
+        - in: query
+          name: sellerId
+          description: id of a seller
+          required: true
+          schema:
+            type: integer
+            example: 11
+          
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: the individual scores of buyers who rated the specified seller
+                properties:
+                  individual scores:
+                    type: array
+
+  /token_used:
+    summary: get a confirmation of a token having been used prior
+    get:
+      description: query to find out if a token has previously been used
+      parameters:
+        - in: query
+          name: sellerId
+          description: id of a seller
+          required: true
+          schema:
+            type: integer
+            example: 11
+        - in: query
+          name: token
+          description: token used by the buyer to rate a seller
+          required: true
+          schema:
+            type: integer
+            example: 104
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Boolean that confirms whether or not a token has been used before
+                properties:
+                  used:
+                    type: boolean

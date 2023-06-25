@@ -9,7 +9,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 from datetime import datetime
-
+import phe
 
 
 def aggregate(seller_addr, ind_data):
@@ -51,12 +51,11 @@ def handle_event(event):
     # Parse parameters inside event
     receipt = web3.eth.waitForTransactionReceipt(event['transactionHash'])
     result = RequestValueEvent.processReceipt(receipt, errors=DISCARD)
-    
 
     if len(result) == 0:
         result = RequestScoreEvent.processReceipt(receipt, errors=DISCARD)
         doc_ref = db.collection("individual_scores").document("jz9uo3kVGcD65PW0kkEg")
-
+        
         args = result[0]["args"]
         seller_id = args["sellerId"]
         individual_score = args["indi_score"]
@@ -66,22 +65,23 @@ def handle_event(event):
         enc_score = str(encrypt_score(individual_score))
     
         web_contract.functions.add(seller_id, token_val, user_id, enc_score).transact()
-
-        with open("individual.json", "r+") as file:
-            json_data = json.load(file)
-
-            json_data.append({
-                "seller_id": seller_id,
-                "token_val": token_val,
-                "user_id": user_id,
-                "enc_score": enc_score
-                }) 
-
-            json.dump(json_data, file)
-            doc_ref.set(json_data)
-
+        
+        # with open("individual.json", "r+") as file:
+        #     json_data1 = json.load(file)
+        #     print(json_data1)
+        #     print(type(json_data1['data']))
+        #     json_data1["data"].append({
+        #         "seller_id": seller_id,
+        #         "token_val": token_val,
+        #         "user_id": user_id,
+        #         "enc_score": enc_score
+        #         })
+        #     json.dump(json_data1, file)
+        #     doc_ref.set(json_data1)
 
     else:    
+
+
         try:
             doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
             args = result[0]["args"]
@@ -92,10 +92,8 @@ def handle_event(event):
             enc_scores = args["array"]
     
             off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-b7df1/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
-            
             aggr_score = str(aggregate(seller_addr=None, ind_data=enc_scores))
             print("Aggregate Score: ", aggr_score)
-
             timestamp = str(datetime.now())
     
             # Once result has been retrieved, return this back into smart contract
@@ -188,7 +186,7 @@ web3 = Web3(HTTPProvider(blockchain_address))
 web3.eth.defaultAccount = web3.eth.accounts[0]
 
 oracle_compiled_path = './src/abi/OracleInterface.json'
-oracle_address = '0x78CD3d5c00269ba0bDe0172e504AD344cc4cbf29'
+oracle_address = '0x16aed03fe56C02A49362fE224a12F70e76Dbc7dB'
 with open(oracle_compiled_path) as file:
     oracle_json = json.load(file)  # load contract info as JSON
     oracle_abi = oracle_json['abi']
@@ -199,7 +197,7 @@ oracle_contract = web3.eth.contract(address=oracle_address, abi=oracle_abi)
 
 
 gateway_compiled_path = './src/abi/GatewayInterface.json'
-gateway_address = '0xc591cB045A256e6ad6448e103cAC2a77e9f37CC2'
+gateway_address = '0x40aF400fAE11C9FfAB4764b47C1A3b3305DA6C79'
 with open(gateway_compiled_path) as file:
     gateway_json = json.load(file)  # load contract info as JSON
     gateway_abi = gateway_json['abi']
@@ -207,7 +205,7 @@ gateway_contract = web3.eth.contract(address=gateway_address, abi=gateway_abi)
 
 
 onchain_compiled_path = './src/abi/OnchainReputationData.json'
-onchain_address = '0x9bee4A9e2a15960565561E1b13c4dbA3809334E0'
+onchain_address = '0xAe32Dd1169f65E5Cbd71790E87Aaf3C737a99730'
 with open(onchain_compiled_path) as file:
     onchain_json = json.load(file)  # load contract info as JSON
     onchain_abi = onchain_json['abi']
@@ -215,13 +213,32 @@ onchain_contract = web3.eth.contract(address=onchain_address, abi=onchain_abi)
 
 
 web_compiled_path = './src/abi/WebInterface.json'
-web_address = '0xBE14fA01dD9bb817DF0479A9fEC8472547B32ED1'
+web_address = '0x46B6E377b14081EFBd2D08D096294Ae228627e43'
 with open(web_compiled_path) as file:
     web_json = json.load(file)  # load contract info as JSON
     web_abi = web_json['abi']
 web_contract = web3.eth.contract(address=web_address, abi=web_abi)
 
-pub,priv = paillier.generate_paillier_keypair(n_length=256)
+def keypair_load_pyp(pub_jwk, priv_jwk):
+    """Deserializer for public-private keypair, from JWK format."""
+    rec_pub = json.loads(pub_jwk)
+    rec_priv = json.loads(priv_jwk)
+    pub_n = phe.util.base64_to_int(rec_pub['n'])
+    pub = paillier.PaillierPublicKey(pub_n)
+    priv_p = phe.util.base64_to_int(rec_priv['p'])
+    priv_q = phe.util.base64_to_int(rec_priv['q'])
+    priv = paillier.PaillierPrivateKey(pub, priv_p, priv_q)
+    return pub, priv
+
+with open("phe_key.pub", "r") as f:
+     pub_jwk = f.read()
+
+with open("phe_private_key.priv", "r") as f:
+     priv_jwk = f.read()
+
+pub, priv = keypair_load_pyp(pub_jwk, priv_jwk)
+
+#pub,priv = paillier.generate_paillier_keypair(n_length=256)
 
 
 
@@ -229,7 +246,7 @@ cred = credentials.Certificate('./src/abi/reputable.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-# doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
 
 
 # # Oracle SC will be detailed here:
@@ -252,16 +269,12 @@ db = firestore.client()
 # data_service = "0x84801c4D14ccd5E217596A561174c0ac6CBdC976"
 # data_service_abi = Path("data_service_abi.json").read_text()
 # data_service_instance = w3.eth.contract(address=data_service, abi=data_service_abi)
-
-# JSON file to store and append aggregate scores
-with open("off-chain.json", "w") as file:
+# JSON file to store individual feedback
+with open("individual.json", "w") as file:
     json_data = {"data": []}
     json.dump(json_data, file)
 
-
-
-# JSON file to store individual feedback
-with open("individual.json", "w") as file:
+with open("off-chain.json", "w") as file:
     json_data = {"data": []}
     json.dump(json_data, file)
 
@@ -280,8 +293,4 @@ block_filter = web3.eth.filter({"address": oracle_address})
 
 # Set to loop every 5 secs
 log_loop(block_filter, 5)
-
-
-
-
 

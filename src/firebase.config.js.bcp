@@ -1,0 +1,28 @@
+//import firebase from "firebase";
+//const { initializeApp, firestore } = require('firebase/app');
+//import firebase from "firebase";
+//const firebase = require('firebase/app');
+
+//import firebase from 'firebase/compat/app'; //'firebase/app';
+
+//import 'firebase/compat/firestore';
+//import 'firestore/compat/auth';
+
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore/lite';
+ 
+//import * as firebase from 'firebase';
+const firebaseConfig = {
+  apiKey: "AIzaSyDD0ntPx8CiICDYUHuXCod1HjRmQGUDUmk",
+  authDomain: "reputable-b7df1.firebaseapp.com",
+  projectId: "reputable-b7df1",
+  storageBucket: "reputable-b7df1.appspot.com",
+  messagingSenderId: "802223406358",
+  appId: "1:802223406358:web:cad6c3f608b1165a67a437",
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp); //firestore();
+
+
+export default db;

@@ -1,0 +1,430 @@
+import React, { useState, useEffect } from "react";
+import Button from "react-bootstrap/Button";
+import { Col, Row, Form } from "react-bootstrap";
+import database from "../firebase.config";
+import { collection, query, getDocs } from "firebase/firestore";
+
+//import { NeuButton } from "neumorphism-react";
+import { Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
+
+import { makeStyles } from "@material-ui/styles";
+import { color } from "@material-ui/system";
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    width: 150,
+  },
+}));
+
+const Dashboard = () => {
+  const [showResults, setShowResults] = React.useState(false);
+  const [showResIndi, setShowResultsIndi] = React.useState(false);
+  const [showResSeller, setShowResultsSeller] = React.useState(false);
+  const [showVerifiedReputResults, setShowVerifiedRepResults] =
+    React.useState(false);
+  const [showVerifiedIndResults, setShowVerifiedIndResults] =
+    React.useState(false);
+
+  const onClickRepVeryify = () => setShowVerifiedRepResults(true);
+  const onClickIndVeryify = () => setShowVerifiedIndResults(true);
+
+  const classes = useStyles();
+  const [showVeriyButton, setShowVerifyButton] = React.useState(false);
+
+  const [value, setvalue] = useState("");
+  const [value1, setValue1] = useState("");
+
+  const [value0Error, setValue0Err] = useState({});
+  const [value1Error, setValue1error] = useState({});
+
+  const [placeHolder, setPlaceHolder] = useState("Seller ID / User ID");
+
+  const [newdata, setnewData] = React.useState([{}]);
+  const [indivScore, setIndiviScore] = React.useState([]);
+
+  const [sellerID, setSellerID] = React.useState([]);
+
+  // Var's used to get and set data.
+  const [sellerTxhash, setsellerTxhash] = React.useState([]);
+  const [timestamp, setTimeStamp] = React.useState([]);
+  const [rep_score, setRepScore] = React.useState();
+  const [verifyRepScore, setVerifyRepScore] = React.useState();
+  const [isRendered, setisRendered] = React.useState(false);
+
+  //use this to store set total rep score:
+  const [score, setScore] = React.useState([]);
+
+  const VerifyRepResults = () => (
+    <div>
+      <h5>Score: {verifyRepScore}</h5>
+      <h5>Tx_Hash: {sellerTxhash}</h5>
+      <h5>Time Stamp: {timestamp} </h5>
+    </div>
+  );
+  const VerifyIndResults = () => <h1>Some Verified Rep Results</h1>;
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    //let userID = 1235;
+    let dbRef = query(collection(database, "individual_scores"));
+    const dataRef = await getDocs(dbRef)
+      .then((snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching User ID");
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          console.log(doc.id, "=>", doc.data());
+          const data = doc.data()["data"];
+
+          setnewData(data);
+          // console.log("here", newdata.length);
+          // console.log(newdata[5]);
+        });
+      })
+      .catch((err) => {
+        console.log("Error getting documents", err);
+      });
+  };
+
+  const ReputationalResults = () => (
+    <div>
+      <div className=" d-flex justify-content-center mb-3 ">
+        <h1>Seller Reputational Score </h1>
+      </div>
+      <div style={{ position: "absolute" }}>
+        <p style={{ marginLeft: -490 }}>{score}</p>
+      </div>
+    </div>
+  );
+
+  const IndividualScore = () => (
+    <div>
+      <div className=" d-flex justify-content-center mb-3 ">
+        <h1>Individual Score </h1>
+      </div>
+      <div style={{ position: "absolute" }}>
+        <p style={{ marginLeft: -490 }}>{indivScore}</p>
+      </div>
+    </div>
+  );
+
+
+
+  const getSellerScore = async (sellerId) => {
+    console.log("Assign clicked");
+    //alert('You clicked assign');
+    const getStore = await fetch("http://localhost:5000/reputation_score", {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      redirect: "follow",
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify({ sellerId: sellerId }),
+    }).then((response) =>
+      response.json().then((data) => {
+        setRepScore(data["score"]);
+        console.log("herer" ,data["score"]); //remove log and setData to data
+        //console.log()
+      })
+    );
+    
+    
+
+    //await new Promise(resolve => setTimeout(resolve, 3000));
+    //Fetch Needed to be called with seller id and set response
+    //Get the data  from fetch and store it in a variable and then just show
+    const getSomemore = await fetch("http://localhost:5000/verify_reputation?sellerId="+sellerId, {
+      method: "GET",
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      redirect: "follow",
+      referrerPolicy: "no-referrer",
+      //body: JSON.stringify({ sellerId: sellerId }),
+    }).then((response) =>
+      response.json().then((data) => {
+        setsellerTxhash(data["hash"]);
+        setTimeStamp(data["timestamp"]); //remove log and setData to data
+        setVerifyRepScore(data['score']);
+        //console.log()
+      })
+    );
+    setisRendered(true);
+  };
+
+  const onChangeOption = (e) => {
+    setShowResults(false);
+    setShowResultsIndi(false);
+    setShowResultsSeller(false);
+    setValue1("");
+    setShowVerifiedRepResults(false);
+    setShowVerifiedIndResults(false);
+
+    if (e === "Reputational Score") {
+      setPlaceHolder("Seller ID");
+    } else if (e === "Individual Score") {
+      setPlaceHolder("User ID");
+    }
+  };
+  const custom_sort = (a, b) => {
+    return new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime();
+  };
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    const isValid = formValidation();
+
+    //Call firestore get data here
+    var val = parseInt(value1);
+    getSellerScore(val);
+    if (isValid) {
+      // var array = [
+      //   { id: 1, start: "2016-12-07T13:00:00", subject: "test1" },
+      //   { id: 2, start: "2016-12-07T09:00:00", subject: "test2" },
+      //   { id: 3, start: "2016-12-07T10:00:00", subject: "test3" },
+      //   { id: 4, start: "2016-12-07T07:00:00", subject: "test4" },
+      //   { id: 5, start: "2016-12-07T14:00:00", subject: "test5" },
+      // ];
+
+      // array.sort(function (a, b) {
+      //   return a.start.localeCompare(b.start);
+      // });
+
+      // console.log(array);
+
+      if (value === "Reputational Score") {
+        console.log("JSON data", newdata);
+        console.log("Running Reputational score");
+        
+        let arrayofIndividualScores = [];
+        try {
+          // const findUserData = newdata.find((ui) => ui.seller_id === val);
+          //  console.log(findUserData["individual_score"]);
+          //  setsellerTxhash(findUserData["tx_hash"]);
+          //  setTimeStamp(findUserData["Timestamp"]);
+
+          newdata.map((i) => {
+            if (i.seller_id === val) {
+              //console.log("Seller ID: ", i.seller_id, val);
+              // console.log("Individual Score", i.individual_score);
+              arrayofIndividualScores.push(i.individual_score);
+              // setSellerID(i.sellerID);
+            }
+          });
+          //The array ready to push into API
+          //console.log(arrayofIndividualScores);
+          
+         
+          console.log("asdasda" + val);
+          //Get the score and display it here here from the api call..
+          if(isRendered){
+            setTimeout(() => { console.log("Delayed!"); }, 3000);
+            setScore(
+              <div style={{ marginLeft: 650 }}>
+                <h5 style={{ marginLeft: -150 }}>{rep_score}</h5>
+                <Button variant="primary" onClick={onClickRepVeryify}>
+                  Verify Score
+                </Button>
+              </div>
+            );
+            setShowResultsSeller(true);
+
+          }
+          
+          //setShowVerifiedRepResults(true);
+        } catch (e) {
+          setShowVerifiedRepResults(false);
+          setScore(
+            <h6 style={{ color: "red", marginLeft: 490 }}>
+              Unable to find Seller ID: {value1}
+            </h6>
+          );
+        }
+
+        
+
+        // //Run reputatioal score result
+        //
+        //   console.log("asdasdasd", sellerTxhash);
+        // }
+
+        // setShowResults(true);
+      } else if (value === "Individual Score") {
+        // Run indivisual score result
+
+        console.log("Running Individual score fun ");
+        try {
+          const findUserData = newdata.find((ui) => ui.user_id === val);
+          console.log(findUserData["individual_score"]);
+          setIndiviScore(findUserData["individual_score"]);
+        } catch (e) {
+          setIndiviScore(
+            <h6 style={{ color: "red", marginLeft: 490 }}>
+              Unable To Find Score For The User ID {value1}
+            </h6>
+          );
+        }
+
+        setShowResultsIndi(true);
+      }
+    }
+  };
+
+  const formValidation = () => {
+    const optionErr = {};
+    const secondInputErr = {};
+
+    let isValid = true;
+
+    if (value === "") {
+      optionErr.optionEmpty = "Please choose an Option";
+      console.log(optionErr);
+      isValid = false;
+    }
+    if (value1 === "") {
+      secondInputErr.optionEmpty = "Please Type in an Seller ID / User ID";
+      isValid = false;
+    }
+
+    setValue0Err(optionErr);
+    setValue1error(secondInputErr);
+
+    return isValid;
+  };
+
+  return (
+    <div className="d-flex justify-content-center mb-3 shadow p-3 ">
+      {Object.keys(value0Error).map((key) => {
+        return (
+          <div
+            style={{
+              fontWeight: "bold",
+              color: "red",
+              position: "absolute",
+              top: "25%",
+            }}
+            className="d-flex justify-content-center"
+          >
+            {" "}
+            {value0Error[key]}
+          </div>
+        );
+      })}
+      {Object.keys(value1Error).map((key) => {
+        return (
+          <div
+            style={{
+              fontWeight: "bold",
+              color: "red",
+              position: "absolute",
+              top: "29%",
+            }}
+            className="d-flex justify-content-center"
+          >
+            {" "}
+            {value1Error[key]}
+          </div>
+        );
+      })}
+
+      <Form style={{ position: "absolute", top: "40%" }} onSubmit={onSubmit}>
+        <Row>
+          <Col>
+            <FormControl className={classes.formControl}>
+              <InputLabel>Choose Query</InputLabel>
+              <Select
+                id="select_option"
+                style={{ width: 300 }}
+                //onChange={(e) => {setvalue(e.target.value)}
+                onChange={(e) => {
+                  setvalue(e.target.value);
+                  onChangeOption(e.target.value);
+                }}
+              >
+                <MenuItem value={"Reputational Score"}>
+                  Seller Reputation Score
+                </MenuItem>
+                <MenuItem value={"Individual Score"}>
+                  Check Individual User Feedback
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Col>
+          <Col style={{ paddingLeft: 160 }}>
+            <Form.Control
+              type="number"
+              pattern="^-?[0-9]\d*\.?\d*$"
+              style={{ width: 200, height: 55 }}
+              placeholder={placeHolder}
+              onChange={(e) => setValue1(e.target.value)}
+            />
+          </Col>
+
+          <Col>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Col>
+        </Row>
+        <div
+          className="d-flex justify-content-center"
+          style={{
+            paddingTop: 30,
+          }}
+        >
+          {showResSeller ? <ReputationalResults /> : null}
+        </div>
+        <div
+          className="d-flex justify-content-center"
+          style={{
+            paddingTop: 30,
+          }}
+        >
+          {showResIndi ? <IndividualScore /> : null}
+        </div>
+
+        <div className="d-flex justify-content-center btn-toolbar ">
+          <div
+            style={{
+              paddingRight: 20,
+              paddingTop: 20,
+            }}
+          ></div>
+        </div>
+
+        <div
+          className="d-flex justify-content-center"
+          style={{
+            paddingTop: 30,
+          }}
+        >
+          {showVerifiedReputResults ? <VerifyRepResults /> : null}
+        </div>
+        <div
+          className="d-flex justify-content-center"
+          style={{
+            paddingTop: 30,
+          }}
+        >
+          {showVerifiedIndResults ? <VerifyIndResults /> : null}
+        </div>
+      </Form>
+    </div>
+  );
+};
+
+export default Dashboard;

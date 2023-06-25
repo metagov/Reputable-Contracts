@@ -1,0 +1,247 @@
+pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+
+import "./Oracle.sol";
+
+
+contract WebInterface {
+    // Aggregator contract
+    address public oracle_address;
+    OracleInterface private oracleContract;
+    //string user_rating;
+    //address user_addr;
+    uint seller_id = 3;
+    // store aggr in variable
+    
+    // 5 values instead
+    struct Tokens {
+        uint [] token_val;
+        bool [] used;
+        string [] scores;
+        uint [] camps;
+        uint [] user_id;
+        //string enc_1;
+        //can store the campaign id and user id.
+        //address [] user_addr;
+        
+    }
+    
+    //string [] enc_0 = "";
+    //string [] enc_1 = "";
+    
+    constructor() {
+        
+        //for (uint i=0; i<12; i++) {
+        //    addData(11, 1234, true, "1", 1);
+        //}
+        
+        //WebInterface w;
+        //w = new WebInterface();
+        //w.adder(11, 101, 1001, 1);
+        //w.adder(11, 102, 1002, 1);
+        //w.adder(11, 103, 1003, 0);
+        //w.adder(11, 104, 1004, 1);
+        //w.adder(11, 105, 1005, 1);
+        //setOracleAddress(0x1aFA492984C229614C9C33907C8024e084c7372E);
+        //adder(11, 104, 1004, 1);
+        
+    }
+    //local variable for user_addr and 
+    
+    //Tokens [] tokensArr;
+    uint [] tokensArr;
+    //mappin of seller addrs to seller_ids
+    //mapping of seller ids to the arrays
+    //with the arrays we can loop to find the info
+    
+    mapping(uint => Tokens) seller_tokens;
+    
+    function addToToken(uint tok_val, bool use) public {
+        //seller
+        //make a new struct 
+        //popoulate the mapping with the struct
+        //add the mapping value in an array
+        seller_id = 4;
+        
+    }
+    
+    function setOracleAddress(address _oracle_address) public {
+        oracle_address = _oracle_address;
+        oracleContract = OracleInterface(_oracle_address);
+    }
+    
+    // seller_id, camapaign_id, inside aggr function
+    // remove campaign id 
+    
+    
+    function aggr(uint _seller_id) public {
+        
+        uint[] memory user_id = seller_tokens[_seller_id].user_id;
+        string[] memory scores = seller_tokens[_seller_id].scores;
+        oracleContract.requestValue(_seller_id, user_id, scores);
+        
+        //connect to proprietary oracle
+        //look at example looking at chainlink
+
+    }
+
+    //emit event for aggregation to be parsed to oracle
+
+    function getSellerId() public view returns (uint) {
+        return seller_id;
+    }
+    
+//    function encrypt(uint _seller_id, uint _score) public returns (string memory){
+//        oracleContract.requestScore(_seller_id, _score);
+        
+    //}
+    function return_encrypt(uint seller_id, string memory enc_score)public returns (string memory){
+        return enc_score;
+    }
+    
+    function encryptZero() public returns (string[] memory){
+        
+    }
+    
+    function addOne(uint _seller_id, uint _token_val, uint _user_id) public {
+    
+        //encryptOne function
+        //oracleContract.requestScore(_seller_id, token_val, _user_id, 1);
+        //string memory enc  = enc_1;
+        //call the oracle 
+        //need to push the values
+        seller_tokens[_seller_id].token_val.push(_token_val); //token array to be used for seller id and tokens
+        seller_tokens[_seller_id].used.push(true) ;
+        //seller_tokens[_seller_id].camps.push(_campId) -1;
+        //seller_tokens[_seller_id].scores.push(enc) ;
+        seller_tokens[_seller_id].user_id.push(_user_id);
+
+        tokensArr.push(_seller_id);
+
+}
+
+    function adder(uint _seller_id, uint _token_val, uint _user_id, uint _val) public{
+        //encryptOne function
+        oracleContract.requestScore(_seller_id, _token_val, _user_id, _val);
+        
+    }
+    
+    function add(uint _seller_id, uint _token_val, uint _user_id, string memory _enc_val) public {
+    
+
+        //string memory enc  = enc_1;
+        //call the oracle 
+        //need to push the values
+        seller_tokens[_seller_id].token_val.push(_token_val); //token array to be used for seller id and tokens
+        seller_tokens[_seller_id].used.push(true) ;
+        //seller_tokens[_seller_id].camps.push(_campId) -1;
+        seller_tokens[_seller_id].scores.push(_enc_val) ;
+        seller_tokens[_seller_id].user_id.push(_user_id);
+
+        tokensArr.push(_seller_id);
+
+}
+
+function addZero(uint _seller_id, uint _token_val, uint _user_id) public {
+    //encryptZero function
+    //call function from oracle to encrypt(0)
+    //could also be done on js straight away before 
+    //passing it to add zero function
+    //uint enc = ... function from oracle returns uint
+    string memory enc = "0";
+    
+    
+    //need to push the values
+    seller_tokens[_seller_id].token_val.push(_token_val);
+    seller_tokens[_seller_id].used.push(true);
+    //seller_tokens[_seller_id].camps.push(_campId) -1;
+    seller_tokens[_seller_id].scores.push(enc);
+    seller_tokens[_seller_id].user_id.push(_user_id);
+
+    tokensArr.push(_seller_id) ;
+}
+
+
+    function addData(uint _seller_id, uint _token_val, bool _used, string memory _score, uint _campaign_id) public {
+        
+        //uint [] memory tok;
+        //bool [] memory use;
+        //value already set to 12 so it's only changing the last value.
+        //can later check if the seller exists before putting calling the
+        //function to create one.
+        
+        //need to push the values
+        seller_tokens[_seller_id].token_val.push(_token_val);
+        seller_tokens[_seller_id].used.push(_used);
+        seller_tokens[_seller_id].scores.push(_score);
+        seller_tokens[_seller_id].camps.push(_campaign_id);
+        tokensArr.push(_seller_id);
+        //emit feedback submitted event
+        //event will contain user id campaing and seller id.
+        //event feedback_submitted(uint _seller_id, uint _campId, uint _user_id);
+        //emit feedback_submitted(seller_id, camp_id, user_id);
+        
+        //I am making a new array every time the function is called
+        //change it to a var if needed
+        //Make the memory already initiated
+        //We just add data to it.
+        
+         
+        
+        //token.token_val.push(_token_val);
+        //token.used.push(_used);
+        //var seller_tokens = seller_tokens[_seller_id];
+        //seller_tokens.token_val.push(_token_val);
+        //seller_tokens.used.push(_used);
+    }
+
+    function getTokenArr() view public returns (uint[] memory) {
+        return tokensArr;
+    }
+
+    function getData(uint _seller_id) view public returns (uint[] memory, bool[] memory, string[] memory, uint[] memory){
+        return(seller_tokens[_seller_id].token_val, seller_tokens[_seller_id].used, seller_tokens[_seller_id].scores, seller_tokens[_seller_id].camps);
+    }
+
+    function newSeller(uint _seller_id) public {
+        uint [] memory tok;
+        bool [] memory use;
+        string [] memory score;
+        uint [] memory camp;
+        uint [] memory user_id;
+        //seller_tokens[_seller_id] = Tokens(new uint[] (12), new bool [] (12));
+        seller_tokens[_seller_id] = Tokens(tok, use, score, camp, user_id);
+    }
+    function countScoresForSeller(uint _seller_id) view public returns (uint) {
+        //later implemented to count the array of a specific seller
+        
+    }
+
+    function isValid(uint _seller_id, uint _token_val) public view returns (bool) {
+        uint [] memory token_arrays =  seller_tokens[_seller_id].token_val;
+        //if (seller_tokens[_seller_id].token_val == _token_val){
+        bool action = false;
+        
+        for(uint i=0; i<=token_arrays.length; i++){
+            if (token_arrays[i] ==_token_val){
+                //seller_tokens instead of token_arrays
+                action = true;
+            }
+            
+        }
+        
+        return action;
+        //return seller_tokens[_seller_id].token_val == _token_val;
+    }
+    
+    function isUsed(uint _seller_id, uint _token_val) public view returns  (bool){
+    uint [] memory token_arrays =  seller_tokens[_seller_id].token_val;
+    //if (seller_tokens[_seller_id].token_val == _token_val){
+    //uint x = getCount(token_arrays);
+    return token_arrays[0] == _token_val || token_arrays[1] == _token_val || token_arrays[2] == _token_val || token_arrays[3] == _token_val || token_arrays[4] == _token_val;
+}
+
+
+
+
+}
