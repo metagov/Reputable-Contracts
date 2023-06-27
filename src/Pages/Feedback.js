@@ -20,8 +20,8 @@ const Feedback = () => {
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const address = '0x6d2F846051E3F13F8e08bE03fCEe5e73b253500a';
-  const web_address = '0x46B6E377b14081EFBd2D08D096294Ae228627e43';
+  const address = '0x500D0cA3ed7d6BEbbFAF748b96Eae210150bbE70';
+  const web_address = '0x7f01Bedef09532f2796E1bb4aEc0Ad074aa606b4';
 
 /*   const showModal = () => {
     return( */

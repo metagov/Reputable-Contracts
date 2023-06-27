@@ -8,7 +8,7 @@ const NavBar = () => {
   const redirect = () => {
     history.push("/feedback");
   };
-  const email = "davidtest@gmail.com";
+  const email = "rashmi.webdev@gmail.com";
   const userID = "Powerbooster19823";
 
   return (

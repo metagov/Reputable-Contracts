@@ -194,10 +194,11 @@ blockchain_address = 'HTTP://127.0.0.1:8545'
 # Client instance to interact with the blockchain
 web3 = Web3(HTTPProvider(blockchain_address))
 # Set the default account (so we don't need to set the "from" for every transaction call)
-web3.eth.defaultAccount = web3.eth.accounts[0]
+web3.eth.defaultAccount = web3.eth.accounts[0] 
+# For this script, "0x500D0cA3ed7d6BEbbFAF748b96Eae210150bbE70"
 
 oracle_compiled_path = './src/abi/OracleInterface.json'
-oracle_address = '0x8e40d6e9bc8201912d6dC2C1fB0b6fcCa00d78C9'
+oracle_address = '0x08D15dc3E88DDBab603C2abCAfedD783F9aceB2E'
 with open(oracle_compiled_path) as file:
     oracle_json = json.load(file)  # load contract info as JSON
     oracle_abi = oracle_json['abi']
@@ -208,15 +209,15 @@ oracle_contract = web3.eth.contract(address=oracle_address, abi=oracle_abi)
 
 
 gateway_compiled_path = './src/abi/GatewayInterface.json'
-gateway_address = '0x8B7b5B31cCBF56C0c3F7Fe40404D6Dd382ff24f9'
+gateway_address = '0xF7dE885331ffD5E34E995156C5fAD3aC06541A95'
 with open(gateway_compiled_path) as file:
     gateway_json = json.load(file)  # load contract info as JSON
     gateway_abi = gateway_json['abi']
 gateway_contract = web3.eth.contract(address=gateway_address, abi=gateway_abi)
 
 
-onchain_compiled_path = './src/abi/OnchainReputationData.json'
-onchain_address = '0xE9F43EdAc775cE2C42cf3761A264CEEccDDC33c6'
+onchain_compiled_path = './src/abi/OnChainReputationData.json'
+onchain_address = '0x094A9440B8C6EeA462411A85272b7F5BEBe317cf'
 with open(onchain_compiled_path) as file:
     onchain_json = json.load(file)  # load contract info as JSON
     onchain_abi = onchain_json['abi']
@@ -224,7 +225,7 @@ onchain_contract = web3.eth.contract(address=onchain_address, abi=onchain_abi)
 
 
 web_compiled_path = './src/abi/WebInterface.json'
-web_address = '0x60891EFA6d9f4C11f65A1643Ae439e56DF8Bed58'
+web_address = '0x7f01Bedef09532f2796E1bb4aEc0Ad074aa606b4'
 with open(web_compiled_path) as file:
     web_json = json.load(file)  # load contract info as JSON
     web_abi = web_json['abi']
