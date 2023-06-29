@@ -23,7 +23,7 @@ const Cart = () => {
 
   const sendEmail = () => {
     if (link.length === 1) {
-      console.log("asdasdasdasd");
+      console.log("I am in send email");
       var storeID0 = link[0]["id"];
       var storelink0 = link[0]["link"];
       var templatePrams = {
@@ -76,7 +76,7 @@ const Cart = () => {
       )
       .then(
         function (response) {
-          console.log("SUCCESS!", response.status, response.text);
+          console.log("SUCCESS! email sent!", response.status, response.text);
         },
         function (error) {
           console.log("FAILED...", error);
