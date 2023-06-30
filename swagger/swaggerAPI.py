@@ -18,6 +18,17 @@ from firebase_admin import firestore
 import json
 import time
 from flask_cors import CORS, cross_origin
+import os
+from dotenv import load_dotenv
+load_dotenv('.env')
+
+
+oracle_address = os.getenv('ORACLE_ADDRESS')
+gateway_address = os.environ.get('GATEWAY_ADDRESS')
+onchain_address = os.environ.get('ONCHAIN_ADDRESS')
+web_address = os.environ.get('WEB_ADDRESS')
+
+print(f"Oracle Address: {oracle_address}")
 
 #https://deapsecure.gitlab.io/deapsecure-lesson05-crypt/21-paillier-he/index.html
 
@@ -53,7 +64,7 @@ web3 = Web3(HTTPProvider(blockchain_address))
 web3.eth.defaultAccount = web3.eth.accounts[0]
 
 oracle_compiled_path = 'src/abi/OracleInterface.json'
-oracle_address = '0xE31f1289B6cF7c312f9998bD7F8CaaB14BCf30C5'
+# oracle_address = '0xE31f1289B6cF7c312f9998bD7F8CaaB14BCf30C5'
 with open(oracle_compiled_path) as file:
     oracle_json = json.load(file)  # load contract info as JSON
     oracle_abi = oracle_json['abi']
@@ -61,7 +72,7 @@ with open(oracle_compiled_path) as file:
 oracle_contract = web3.eth.contract(address=oracle_address, abi=oracle_abi)
 
 gateway_compiled_path = 'src/abi/GatewayInterface.json'
-gateway_address =  '0xbEdC585D53AD54b9F276807AC8e9E42a0A2Eb95F'
+# gateway_address =  '0xbEdC585D53AD54b9F276807AC8e9E42a0A2Eb95F'
 with open(gateway_compiled_path) as file:
     gateway_json = json.load(file)  # load contract info as JSON
     gateway_abi = gateway_json['abi']
@@ -69,7 +80,7 @@ gateway_contract = web3.eth.contract(address=gateway_address, abi=gateway_abi)
 
 
 onchain_compiled_path = 'src/abi/OnChainReputationData.json'
-onchain_address = '0xd81bc49B3aD7d7a32C7D2A81DBeEec3561D85E8b'
+# onchain_address = '0xd81bc49B3aD7d7a32C7D2A81DBeEec3561D85E8b'
 with open(onchain_compiled_path) as file:
     onchain_json = json.load(file)  # load contract info as JSON
     onchain_abi = onchain_json['abi']
@@ -77,7 +88,7 @@ onchain_contract = web3.eth.contract(address=onchain_address, abi=onchain_abi)
 
 
 web_compiled_path = 'src/abi/WebInterface.json'
-web_address = '0x9d59C6168e100B68E431Cfbdb749C8CB3143FbB6'
+# web_address = '0x9d59C6168e100B68E431Cfbdb749C8CB3143FbB6'
 with open(web_compiled_path) as file:
     web_json = json.load(file)  # load contract info as JSON
     web_abi = web_json['abi']
@@ -118,11 +129,11 @@ def oracle_address():
                 #sellerid, token_val, user_id, uint val(1 or 0)
                 #userid example 1234
                 #token example 104
-    web_contract.functioins.adder(11, 100, 1200, 1).transact()
-    web_contract.functioins.adder(11, 101, 1201, 1).transact()
-    web_contract.functioins.adder(11, 102, 1202, 1).transact()
-    web_contract.functioins.adder(11, 103, 1203, 0).transact()
-    web_contract.functioins.adder(11, 104, 1204, 1).transact()
+    web_contract.functions.adder(11, 100, 1200, 1).transact()
+    web_contract.functions.adder(11, 101, 1201, 1).transact()
+    web_contract.functions.adder(11, 102, 1202, 1).transact()
+    web_contract.functions.adder(11, 103, 1203, 0).transact()
+    web_contract.functions.adder(11, 104, 1204, 1).transact()
     #calls the add data several times to add dummy data
     #will later be called on front end web interface
     return jsonify({"result": "success"})
@@ -182,7 +193,9 @@ def get_rep():
     #score = get_rep_data(seller_id)
     #return jsonify("score": score)
     seller_id = request.args.get("sellerId")
-    rep = onchain_contract.functions.get_rep_data(int(seller_id)).call()#send()
+    print(seller_id)
+    rep = onchain_contract.functions.get_rep_data(int(seller_id)).call()
+    print("rep" + rep) # fails if rep is empty
     enc_score = paillier.EncryptedNumber(pub, int(rep))
     dec_score = priv.decrypt(enc_score)
     return jsonify({"score": dec_score})
@@ -360,4 +373,4 @@ def is_token_used():
 #handle with try/catch data being sent.
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=5000)
+    app.run(host="localhost", port=5000, debug=True)

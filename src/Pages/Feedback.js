@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { Col, Row, Form } from "react-bootstrap";
+import dotenv from  'dotenv'
 
 /**  <h2>User ID:{userID} </h2>
       <h2>Campaign ID:{campaignID} </h2>
@@ -20,14 +21,28 @@ const Feedback = () => {
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const address = '0x500D0cA3ed7d6BEbbFAF748b96Eae210150bbE70';
-  const web_address = '0x7f01Bedef09532f2796E1bb4aEc0Ad074aa606b4';
+  const address = '0xE85204314864ED8637b5ED9fba3f0ecE249E09FC';
+  const web_address = '0x4CC94ED1d7868C45e7b6dFA8F34eD44E28B4200F';
+
+//   const address = process.env.ADDRESS;
+// const web_address = process.env.WEB_ADDRESS;
 
 /*   const showModal = () => {
     return( */
       
 /*         )
   } */
+  const Web3 = require('web3');
+
+  const web3 = new Web3('http://localhost:8545');
+  const MyContract = require('../abi/WebInterface.json');
+
+  const contract =  new web3.eth.Contract(
+    MyContract.abi,
+    //deployedNetwork.address
+    web_address
+    );
+
 
   const yesClicked = () => {
     console.log("Print userID is " + userID);
@@ -40,22 +55,14 @@ const Feedback = () => {
     //setOpen(true);
     //call setOracleAddress()
     //import Web3 from "web3";
-    const Web3 = require('web3');
-    
   
-    const MyContract = require('../abi/WebInterface.json');
     
     const init = async () => {
-      const web3 = new Web3('http://localhost:8545');
     
       const id = await web3.eth.net.getId();
       const deployedNetwork = MyContract.networks[id];
       //const web_address = '0x30e32a2Ace7225Ef840658eB0E68743E9E34539C';
-      const contract = new web3.eth.Contract(
-        MyContract.abi,
-        //deployedNetwork.address
-        web_address
-        );
+       
   
         //const result = await contract.methods.getData(1).call();
         //getSellerId ()
@@ -81,7 +88,7 @@ const Feedback = () => {
 
           //working for past events (but not the latest + 1)
           //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
-          await new Promise(resolve => setTimeout(resolve, 3500));
+          await new Promise(resolve => setTimeout(resolve, 5500));
           const latest = await web3.eth.getBlockNumber();
           //console.log("Latest block: ", latest);
 
@@ -128,6 +135,18 @@ const Feedback = () => {
     } else if (sellerID === "13") {
       setSName("Sainsbury");
     }
+
+    const eventListener = contract.events.ScoreAdded({})
+    .on('data', function(event) {
+      console.log('ScoreAdded event emitted:', event.returnValues);
+      // Perform actions when the event is emitted
+    })
+    .on('error', console.error);
+
+
+    return () => {
+      eventListener.unsubscribe();
+    };
   }, []);
 
   // No button function

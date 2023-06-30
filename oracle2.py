@@ -11,6 +11,18 @@ from firebase_admin import firestore
 from datetime import datetime
 import phe
 import time
+import os
+from dotenv import load_dotenv
+load_dotenv('.env')
+
+
+oracle_address = os.getenv('ORACLE_ADDRESS')
+gateway_address = os.environ.get('GATEWAY_ADDRESS')
+onchain_address = os.environ.get('ONCHAIN_ADDRESS')
+web_address = os.environ.get('WEB_ADDRESS')
+
+print(f"Oracle Address: {oracle_address}")
+
 
 def aggregate(seller_addr, ind_data):
     #ind_data = array of ind scores
@@ -198,7 +210,7 @@ web3.eth.defaultAccount = web3.eth.accounts[0]
 # For this script, "0x500D0cA3ed7d6BEbbFAF748b96Eae210150bbE70"
 
 oracle_compiled_path = './src/abi/OracleInterface.json'
-oracle_address = '0xE31f1289B6cF7c312f9998bD7F8CaaB14BCf30C5'
+# oracle_address = '0xE31f1289B6cF7c312f9998bD7F8CaaB14BCf30C5'
 with open(oracle_compiled_path) as file:
     oracle_json = json.load(file)  # load contract info as JSON
     oracle_abi = oracle_json['abi']
@@ -209,7 +221,7 @@ oracle_contract = web3.eth.contract(address=oracle_address, abi=oracle_abi)
 
 
 gateway_compiled_path = './src/abi/GatewayInterface.json'
-gateway_address = '0xbEdC585D53AD54b9F276807AC8e9E42a0A2Eb95F'
+# gateway_address = '0xbEdC585D53AD54b9F276807AC8e9E42a0A2Eb95F'
 with open(gateway_compiled_path) as file:
     gateway_json = json.load(file)  # load contract info as JSON
     gateway_abi = gateway_json['abi']
@@ -217,7 +229,7 @@ gateway_contract = web3.eth.contract(address=gateway_address, abi=gateway_abi)
 
 
 onchain_compiled_path = './src/abi/OnChainReputationData.json'
-onchain_address = '0xd81bc49B3aD7d7a32C7D2A81DBeEec3561D85E8b'
+# onchain_address = '0xd81bc49B3aD7d7a32C7D2A81DBeEec3561D85E8b'
 with open(onchain_compiled_path) as file:
     onchain_json = json.load(file)  # load contract info as JSON
     onchain_abi = onchain_json['abi']
@@ -225,7 +237,7 @@ onchain_contract = web3.eth.contract(address=onchain_address, abi=onchain_abi)
 
 
 web_compiled_path = './src/abi/WebInterface.json'
-web_address = '0x9d59C6168e100B68E431Cfbdb749C8CB3143FbB6'
+# web_address = '0x9d59C6168e100B68E431Cfbdb749C8CB3143FbB6'
 with open(web_compiled_path) as file:
     web_json = json.load(file)  # load contract info as JSON
     web_abi = web_json['abi']
