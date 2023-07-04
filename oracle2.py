@@ -14,6 +14,7 @@ import time
 import os
 from dotenv import load_dotenv
 load_dotenv('.env')
+pub, priv = paillier.generate_paillier_keypair(n_length=256)
 
 
 oracle_address = os.getenv('ORACLE_ADDRESS')

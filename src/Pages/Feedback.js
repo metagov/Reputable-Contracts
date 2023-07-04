@@ -15,15 +15,15 @@ const Feedback = () => {
   const location = useLocation();
   const storeName = location.state?.fromDashboard;
   console.log(storeName);
-  const userName = "David";
+  const userName = "Rashmi";
   const history = useHistory();
   const [open, setOpen] = React.useState(false);
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const address = '0xE85204314864ED8637b5ED9fba3f0ecE249E09FC';
-  const web_address = '0x4CC94ED1d7868C45e7b6dFA8F34eD44E28B4200F';
-
+  const address = '0x8b24461B0Fb88b70efe6fEf9cd3D66A8e4E8bf3f';
+  const web_address = '0x14318E23B2308A8956670B3b177915d27a5EF23a';
+const oracle_address = '0x93102Cd74138f93514099D3Ebf79604f610F644B';
 //   const address = process.env.ADDRESS;
 // const web_address = process.env.WEB_ADDRESS;
 
@@ -36,11 +36,17 @@ const Feedback = () => {
 
   const web3 = new Web3('http://localhost:8545');
   const MyContract = require('../abi/WebInterface.json');
+  const OracleContractABI = require('../abi/OracleInterface.json')
 
   const contract =  new web3.eth.Contract(
     MyContract.abi,
     //deployedNetwork.address
     web_address
+    );
+
+    const OracleContract = new web3.eth.Contract(
+      OracleContractABI.abi,
+      oracle_address
     );
 
 
@@ -60,6 +66,7 @@ const Feedback = () => {
     const init = async () => {
     
       const id = await web3.eth.net.getId();
+      console.log("ID:"+id)
       const deployedNetwork = MyContract.networks[id];
       //const web_address = '0x30e32a2Ace7225Ef840658eB0E68743E9E34539C';
        
@@ -73,9 +80,13 @@ const Feedback = () => {
         const parsed_tokenID = parseInt(tokenID);
         const parsed_userID = parseInt(userID);
         const used = await contract.methods.isUsed(parsed_sellerID, parsed_tokenID).call();
+       await contract.methods.setOracleAddress(oracle_address).call();
+
         if (!used){
           contract.methods.adder(parsed_sellerID, parsed_tokenID, parsed_userID, 1).send({from:address});//{from: '0x3dec0B5699F4511c133d9d9482B81Ac64A3Ef6eA'});
-          console.log(result);
+          console.log("result:"+ result);
+          console.log("isUsed:"+ used);
+
 /*           contract.events.ScoreAdded({})//, {fromBlock:0, toBlock: 'latest'})
           .on('data', async function(event){
               console.log(event.returnValues);
@@ -143,9 +154,16 @@ const Feedback = () => {
     })
     .on('error', console.error);
 
+    const eventListenerOracle = OracleContract.events.RequestScoreEvent({})
+    .on('data', function(event) {
+      console.log('RequestScore event emitted:', event.returnValues);
+      // Perform actions when the event is emitted
+    })
+    .on('error', console.error);
 
     return () => {
       eventListener.unsubscribe();
+      eventListenerOracle.unsubscribe();
     };
   }, []);
 

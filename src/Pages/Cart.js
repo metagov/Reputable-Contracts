@@ -103,7 +103,7 @@ const Cart = () => {
         ).toFixed(0)}/1/`,
       });
     });
-    console.log("here", link);
+    console.log("feedback link", link);
     const t7 = performance.now();
     console.log(`Generate tokens time took ${t7 - t6} milliseconds.`);
     sendEmail();
