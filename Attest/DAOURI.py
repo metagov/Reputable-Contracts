@@ -26,7 +26,12 @@ json_data = {
     "type": "DAO",
     "name": "The Fruit Shop",
     "description": "This a fruit shop aggregator that allows different sellers to sell fruits on our platform",
-    "issuerURI": issuerURI
+    "attestationIssuers": [
+		{
+			"type": "AttestationIssuer",
+			"issuerURI": issuerURI
+		},
+    ]
 }
 
 
