@@ -20,3 +20,8 @@ http://localhost:3000/feedback/S16120405/SellerID123/TK1996/CMP21/
 ## Output
 
 ![](images/img2.PNG)
+
+
+## Intructions to run
+
+

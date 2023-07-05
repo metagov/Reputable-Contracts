@@ -23,12 +23,14 @@ from dotenv import load_dotenv
 load_dotenv('.env')
 
 
+
+
 oracle_address = os.getenv('ORACLE_ADDRESS')
 gateway_address = os.environ.get('GATEWAY_ADDRESS')
 onchain_address = os.environ.get('ONCHAIN_ADDRESS')
 web_address = os.environ.get('WEB_ADDRESS')
 
-print(f"Oracle Address: {oracle_address}")
+print(f"Envionment variables initialized")
 
 #https://deapsecure.gitlab.io/deapsecure-lesson05-crypt/21-paillier-he/index.html
 
@@ -56,6 +58,8 @@ cred = credentials.Certificate('reputable.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+if doc_ref is not None:
+    print("document initialized")
 
 blockchain_address = 'HTTP://127.0.0.1:8545'
 # Client instance to interact with the blockchain
@@ -156,8 +160,8 @@ def test():
     doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
     #emp_ref = db.collection('individual socre')
     #docs = doc_ref.stream()
-    docs = doc_ref.get().to_dict()
-    #docs = docs.to_dict()
+    docs = doc_ref.get()
+    docs = docs.to_dict()
     doc_list = []
     # for doc in docs:
     #     print('{} => {} '.format(doc.id, doc.to_dict()))
@@ -323,7 +327,11 @@ def rep_score_post():
     #print("sellerId: ", int)
     #ind_scores = request.args.get('userScores')
     #call aggr function from web interface
-        web_contract.functions.aggr(seller_id).transact()
+        transaction = web_contract.functions.aggr(seller_id).transact()
+        web3.eth.waitForTransactionReceipt(transaction)
+        receipt = web3.eth.getTransactionReceipt(transaction)
+        #print('Transaction receipt:', receipt)
+
         #time.sleep(5)
         score = onchain_contract.functions.get_rep_data(seller_id).call()
         #time.sleep(1) #wait 2 secs

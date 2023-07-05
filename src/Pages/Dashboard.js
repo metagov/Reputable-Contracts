@@ -17,7 +17,8 @@ const useStyles = makeStyles((theme) => ({
     width: 150,
   },
 }));
-
+//TODO: add try catch blocks to this page to handle rejections and exceptions
+//TODO: Create new user ID for every new session of app
 const Dashboard = () => {
   const [showResults, setShowResults] = React.useState(false);
   const [showResIndi, setShowResultsIndi] = React.useState(false);

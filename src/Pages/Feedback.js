@@ -21,9 +21,9 @@ const Feedback = () => {
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const address = '0x8b24461B0Fb88b70efe6fEf9cd3D66A8e4E8bf3f';
-  const web_address = '0x14318E23B2308A8956670B3b177915d27a5EF23a';
-const oracle_address = '0x93102Cd74138f93514099D3Ebf79604f610F644B';
+  const address = '0x4C0bAD2960fDbC71D5177D0458Ea8691c4C0E773';
+  const web_address = '0xEe82922233B5f4Db3E696846b0a2B23dDe7d4F9f';
+const oracle_address = '0x144f2012307CE07494ed3764FC804819799b649c';
 //   const address = process.env.ADDRESS;
 // const web_address = process.env.WEB_ADDRESS;
 
