@@ -60,6 +60,7 @@ db = firestore.client()
 doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
 if doc_ref is not None:
     print("document initialized")
+    print(doc_ref.get().to_dict())
 
 blockchain_address = 'HTTP://127.0.0.1:8545'
 # Client instance to interact with the blockchain
@@ -330,10 +331,11 @@ def rep_score_post():
         transaction = web_contract.functions.aggr(seller_id).transact()
         web3.eth.waitForTransactionReceipt(transaction)
         receipt = web3.eth.getTransactionReceipt(transaction)
-        #print('Transaction receipt:', receipt)
+        print('Transaction receipt:', receipt)
 
         #time.sleep(5)
         score = onchain_contract.functions.get_rep_data(seller_id).call()
+        print("score" + score)
         #time.sleep(1) #wait 2 secs
             #call the onchain function to get the aggr score.
             ##Send this to the aggregator
