@@ -21,9 +21,9 @@ const Feedback = () => {
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const address = '0x6199f082a7558fA6776F3F3d69DcB983B1029F5a';
-  const web_address = '0x9617797AD335f6896Ca28A124573A591793dFAFb';
-const oracle_address = '0x0d6E736741C13FCbE6Ffb64A2cD7FFA8512811C6';
+  const address = '0x971b4bc95A2C6e722d74C622254395d0bc8D8488';
+  const web_address = '0xE3347125d16AA11e430b0F4706228d683a95813f';
+const oracle_address = '0x4BCbfb450800d56f02692acb533ABea8711Eb021';
 //   const address = process.env.ADDRESS;
 // const web_address = process.env.WEB_ADDRESS;
 
@@ -104,7 +104,7 @@ const oracle_address = '0x0d6E736741C13FCbE6Ffb64A2cD7FFA8512811C6';
           //console.log("Latest block: ", latest);
 
           const logs = await contract.getPastEvents("ScoreAdded", {
-            fromBlock: latest -10, //could be last 100 blocks
+            fromBlock: latest -100, //could be last 100 blocks
             toBlock: latest+1,
             filter: { token: tokenID}
             //filter: { token: tokenID, user_id: userID, sellerId: sellerID}

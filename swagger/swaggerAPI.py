@@ -4,11 +4,11 @@ Created on Sun Sep 26 02:49:51 2021
 
 @author: prince
 """
-#Flask API integration with Swagger
+# Flask API integration with Swagger
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 from flask import Flask, request, jsonify, render_template, redirect, url_for
-#from flask_swagger_ui import get_swaggerui_blueprint
+# from flask_swagger_ui import get_swaggerui_blueprint
 from pathlib import Path
 from phe import paillier
 import phe
@@ -23,8 +23,6 @@ from dotenv import load_dotenv
 load_dotenv('.env')
 
 
-
-
 oracle_address = os.getenv('ORACLE_ADDRESS')
 gateway_address = os.environ.get('GATEWAY_ADDRESS')
 onchain_address = os.environ.get('ONCHAIN_ADDRESS')
@@ -32,9 +30,11 @@ web_address = os.environ.get('WEB_ADDRESS')
 
 print(f"Envionment variables initialized")
 
-#https://deapsecure.gitlab.io/deapsecure-lesson05-crypt/21-paillier-he/index.html
+# https://deapsecure.gitlab.io/deapsecure-lesson05-crypt/21-paillier-he/index.html
 
-#pub,priv = paillier.generate_paillier_keypair(n_length=256)
+# pub,priv = paillier.generate_paillier_keypair(n_length=256)
+
+
 def keypair_load_pyp(pub_jwk, priv_jwk):
     """Deserializer for public-private keypair, from JWK format."""
     rec_pub = json.loads(pub_jwk)
@@ -45,6 +45,7 @@ def keypair_load_pyp(pub_jwk, priv_jwk):
     priv_q = phe.util.base64_to_int(rec_priv['q'])
     priv = paillier.PaillierPrivateKey(pub, priv_p, priv_q)
     return pub, priv
+
 
 with open("phe_key.pub", "r") as f:
      pub_jwk = f.read()
@@ -85,7 +86,7 @@ gateway_contract = web3.eth.contract(address=gateway_address, abi=gateway_abi)
 
 
 onchain_compiled_path = 'src/abi/OnChainReputationData.json'
-# onchain_address = '0xd81bc49B3aD7d7a32C7D2A81DBeEec3561D85E8b'
+#onchain_address = '0x9948689B9a14D40fB84cD848a3e0431A0492136F'
 with open(onchain_compiled_path) as file:
     onchain_json = json.load(file)  # load contract info as JSON
     onchain_abi = onchain_json['abi']
@@ -103,16 +104,19 @@ firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-b7df1/d
 
 app = Flask(__name__)
 
+
 @app.route('/')
-#@app.route('/static/<path:path>')
+# @app.route('/static/<path:path>')
 def home():
-    #return "<h1>Hello World</h1>"
+    # return "<h1>Hello World</h1>"
     return redirect("/docs")
+
+
 @app.route('/docs')
-#@app.route('/static/<path:path>')
+# @app.route('/static/<path:path>')
 def index():
     # API_URL = "/static/swagger.json or yaml"
-    
+
     # SWAGGER_URL = '/swagger'
     # swaggerui_blueprint = get_swaggerui_blueprint(
     #     SWAGGER_URL,
@@ -121,46 +125,49 @@ def index():
     #         'app_name': "Reputable Swagger API"})
     return render_template('swaggerui.html')
 
+
 @app.route("/oracle", methods=['POST', 'GET'])
 def oracle_address():
-    #address = request.args.get("address")
+    # address = request.args.get("address")
     address = oracle_address
     address = web3.toChecksumAddress(address)
-    #post
-    #sets the address of oracle on web int
-    
+    # post
+    # sets the address of oracle on web int
+
     # = onchain_contract.functions.get_rep_data(seller_id).call()
     web_contract.functions.setOracleAddress(address).transact()
-                #sellerid, token_val, user_id, uint val(1 or 0)
-                #userid example 1234
-                #token example 104
+                # sellerid, token_val, user_id, uint val(1 or 0)
+                # userid example 1234
+                # token example 104
     web_contract.functions.adder(11, 100, 1200, 1).transact()
     web_contract.functions.adder(11, 101, 1201, 1).transact()
     web_contract.functions.adder(11, 102, 1202, 1).transact()
     web_contract.functions.adder(11, 103, 1203, 0).transact()
     web_contract.functions.adder(11, 104, 1204, 1).transact()
-    #calls the add data several times to add dummy data
-    #will later be called on front end web interface
+    # calls the add data several times to add dummy data
+    # will later be called on front end web interface
     return jsonify({"result": "success"})
-    
-    #return "Hello World"
-    
-    
-    #app.register_blueprint(request_api.get_blueprint())
-    
-    #return render_template('index.html')
+
+    # return "Hello World"
+
+    # app.register_blueprint(request_api.get_blueprint())
+
+    # return render_template('index.html')
     # with open(os.path.dirname(app.root_path) + '/readme.md', 'r') as file:
     #     content = file.read();
     #     return markdown.markdown(content)
-    #return "Hello World"
+    # return "Hello World"
     pass
+
+
 @app.route("/test")
-#@cross_origin()
+# @cross_origin()
 def test():
     seller_id = request.args.get("sellerId")
-    doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
-    #emp_ref = db.collection('individual socre')
-    #docs = doc_ref.stream()
+    doc_ref = db.collection("individual_scores").document(
+        "mjHPrqCFPf8y3vAJ9vE1")
+    # emp_ref = db.collection('individual socre')
+    # docs = doc_ref.stream()
     docs = doc_ref.get()
     docs = docs.to_dict()
     doc_list = []
@@ -170,53 +177,58 @@ def test():
     data = docs['data']
     h = ''
     t = ''
-    #loop through dta
-    #compare with seller id
-    #return the hash and timestamp
-    #data0 = data[0]
-    #print(doc_list)
-    
-    #for i in data:
+    # loop through dta
+    # compare with seller id
+    # return the hash and timestamp
+    # data0 = data[0]
+    # print(doc_list)
+
+    # for i in data:
     #    doc_list.append(i)
     for i in data:
-        #print(type(seller_id))
+        # print(type(seller_id))
         if i['seller_id'] == int(seller_id):
             print("seller_id: ", i['seller_id'])
             print("hash: ", i['tx_hash'])
             h = i['tx_hash']
             t = i['Timestamp']
             break
-    #for now only returns the first data meeting the criteria
+    # for now only returns the first data meeting the criteria
     return jsonify({"hash": h, "timestamp": t})
-    #return jsonify({"data": data})#jsonify({"test": 123})
+    # return jsonify({"data": data})#jsonify({"test": 123})
+
 
 @app.route("/reputation")
-#GET
+# GET
 def get_rep():
-    #try catch gets seller id from the post
-    #uses seller id to make a request to the ... smart contract with web3
-    #score = get_rep_data(seller_id)
-    #return jsonify("score": score)
+    # try catch gets seller id from the post
+    # uses seller id to make a request to the ... smart contract with web3
+    # score = get_rep_data(seller_id)
+    # return jsonify("score": score)
     seller_id = request.args.get("sellerId")
     print(seller_id)
     rep = onchain_contract.functions.get_rep_data(int(seller_id)).call()
-    print("rep" + rep) # fails if rep is empty
+    print("rep" + rep)  # fails if rep is empty
     enc_score = paillier.EncryptedNumber(pub, int(rep))
     dec_score = priv.decrypt(enc_score)
     return jsonify({"score": dec_score})
-    #return jsonify({"reputation score": rep})
+    # return jsonify({"reputation score": rep})
+
 
 CORS(app, support_credentials=True, resources=r'/verify_reputation/*')
+
+
 @cross_origin()
 @app.route("/verify_reputation")
-#get Request
+# get Request
 def verifyReputation():
     seller_id = request.args.get("sellerId")
-    doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
-    #emp_ref = db.collection('individual socre')
-    #docs = doc_ref.stream()
+    doc_ref = db.collection("individual_scores").document(
+        "mjHPrqCFPf8y3vAJ9vE1")
+    # emp_ref = db.collection('individual socre')
+    # docs = doc_ref.stream()
     docs = doc_ref.get().to_dict()
-    #docs = docs.to_dict()
+    # docs = docs.to_dict()
     doc_list = []
     # for doc in docs:
     #     print('{} => {} '.format(doc.id, doc.to_dict()))
@@ -224,16 +236,16 @@ def verifyReputation():
     data = docs['data']
     h = ''
     t = ''
-    #loop through dta
-    #compare with seller id
-    #return the hash and timestamp
-    #data0 = data[0]
-    #print(doc_list)
-    
-    #for i in data:
+    # loop through dta
+    # compare with seller id
+    # return the hash and timestamp
+    # data0 = data[0]
+    # print(doc_list)
+
+    # for i in data:
     #    doc_list.append(i)
     for i in data:
-        #print(type(seller_id))
+        # print(type(seller_id))
         if i['seller_id'] == int(seller_id):
             print("seller_id: ", i['seller_id'])
             print("hash: ", i['tx_hash'])
@@ -243,39 +255,40 @@ def verifyReputation():
     score = onchain_contract.functions.get_rep_data(int(seller_id)).call()
     enc_score = paillier.EncryptedNumber(pub, int(score))
     dec_score = priv.decrypt(enc_score)
-    #return jsonify({"score": dec_score})
-    #for now only returns the first data meeting the criteria
+    # return jsonify({"score": dec_score})
+    # for now only returns the first data meeting the criteria
     return jsonify({"hash": h, "timestamp": t, "score": dec_score})
-    #return jsonify("value": doc)
+    # return jsonify("value": doc)
+
 
 @app.route("/individual_score")
 def get_ind_score():
-    #get and takes seller id and user id
-    
+    # get and takes seller id and user id
+
     seller_id = request.args.get("sellerId")
     user_id = request.args.get("userId")
-    doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
-    #emp_ref = db.collection('individual socre')
-    #docs = doc_ref.stream()
+    doc_ref = db.collection("individual_scores").document(
+        "mjHPrqCFPf8y3vAJ9vE1")
+    # emp_ref = db.collection('individual socre')
+    # docs = doc_ref.stream()
     docs = doc_ref.get().to_dict()
-    #docs = docs.to_dict()
+    # docs = docs.to_dict()
     data = docs['data']
-    
-    #loop through dta
-    #compare with seller id
-    #return the hash and timestamp
-    #data0 = data[0]
-    #print(doc_list)
-    ind_score=None
-    #for i in data:
+
+    # loop through dta
+    # compare with seller id
+    # return the hash and timestamp
+    # data0 = data[0]
+    # print(doc_list)
+    ind_score = None
+    # for i in data:
     #    doc_list.append(i)
     for i in data:
-        #print(type(seller_id))
+        # print(type(seller_id))
         if i['seller_id'] == int(seller_id):
             if i['user_id'] == int(user_id):
                 print("indiv score: ", i['individual_score'])
                 ind_score = i['individual_score']
-                break
     #for now only returns the first data meeting the criteria
     # enc_score = paillier.EncryptedNumber(pub, int(score))
     # dec_score = priv.decrypt(enc_score)
@@ -333,10 +346,11 @@ def rep_score_post():
         receipt = web3.eth.getTransactionReceipt(transaction)
         print('Transaction receipt:', receipt)
 
-        #time.sleep(5)
+        #time.sleep(2)
         score = onchain_contract.functions.get_rep_data(seller_id).call()
         print("score" + score)
-        #time.sleep(1) #wait 2 secs
+        #time.sleep(2) 
+        #wait 2 secs
             #call the onchain function to get the aggr score.
             ##Send this to the aggregator
             ##score = call onchain function to get the aggr score
