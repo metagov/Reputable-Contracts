@@ -77,7 +77,30 @@ a successful transaction should look like this
 Note: This is an input data document that the script uses
 https://firestore.googleapis.com/v1/projects/reputable-b7df1/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1
 
+https://hackmd.io/MC_QqPFTQTe3b1d5bUg62g
 
+# REPUTABLE Smart Contracts deployment
+#### Helpful links
+https://ontochain.ngi.eu/content/reputable-provenance-aware-decentralized-reputation-system-blockchain-based-ecosystems
 
+https://www.researchgate.net/publication/356890067_A_New_Blockchain_Ecosystem_for_Trusted_Traceable_and_Transparent_Ontological_Knowledge_Management_Position_Paper
 
+## Deployed Smart Contract Addresses
+Testnet: Sepolia
+
+### OnChainReputationData.sol :  
+`0x206e22fD482ae75306FF1869E852A3D9Ae48FE76`
+https://sepolia.etherscan.io/address/0x206e22fD482ae75306FF1869E852A3D9Ae48FE76#code
+
+### DataService.sol : 
+`0xfEb6Cf237c031a2d6c97E8E415064A3d1126232A` 
+https://sepolia.etherscan.io/address/0xfEb6Cf237c031a2d6c97E8E415064A3d1126232A#code
+
+### Gateway.sol : 
+`0xe402996DEea7a76bfB4FB0BdC648802952840207`
+https://sepolia.etherscan.io/address/0xe402996DEea7a76bfB4FB0BdC648802952840207#code
+
+### Oracle.sol : 
+`0x13441a7B32E4D012a657Bc0794Fb9BF5717f186F`
+https://sepolia.etherscan.io/address/0x13441a7B32E4D012a657Bc0794Fb9BF5717f186F#code
 
