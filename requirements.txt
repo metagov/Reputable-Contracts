@@ -3,3 +3,8 @@ Flask>=2.2.2
 firebase_admin==5.0.3
 phe==1.4.0
 web3==5.20.0
+dotenv
+json
+time
+requests
+uuid
