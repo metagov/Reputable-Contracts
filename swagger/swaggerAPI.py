@@ -21,8 +21,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv('.env')
 
-mnemonic_phrase = os.getenv("MNEMONIC_PHRASE")
-sepolia_testnet_url = os.getenv("SEPOLIA")
+mnemonic_phrase = os.getenv("REACT_APP_MNEMONIC_PHRASE")
+sepolia_testnet_url = os.getenv("REACT_APP_SEPOLIA")
 
 if not mnemonic_phrase:
     print("Please provide the mnemonic phrase in the .env file.")
@@ -36,10 +36,10 @@ web3.eth.account.enable_unaudited_hdwallet_features()
 # Account from mnemonic phrase
 account = web3.eth.account.from_mnemonic(mnemonic_phrase)
 
-oracle_address = os.getenv('ORACLE_ADDRESS')
-gateway_address = os.environ.get('GATEWAY_ADDRESS')
-onchain_address = os.environ.get('ONCHAIN_ADDRESS')
-web_address = os.environ.get('WEB_ADDRESS')
+oracle_address = os.getenv('REACT_APP_ORACLE_ADDRESS')
+gateway_address = os.environ.get('REACT_APP_GATEWAY_ADDRESS')
+onchain_address = os.environ.get('REACT_APP_ONCHAIN_ADDRESS')
+web_address = os.environ.get('REACT_APP_WEB_ADDRESS')
 
 print(f"Envionment variables initialized")
 
