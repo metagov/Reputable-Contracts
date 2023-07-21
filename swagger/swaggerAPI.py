@@ -6,7 +6,6 @@ Created on Sun Sep 26 02:49:51 2021
 """
 # Flask API integration with Swagger
 from web3 import Web3, HTTPProvider
-from web3.middleware import geth_poa_middleware
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 # from flask_swagger_ui import get_swaggerui_blueprint
 from pathlib import Path
@@ -22,6 +21,20 @@ import os
 from dotenv import load_dotenv
 load_dotenv('.env')
 
+mnemonic_phrase = os.getenv("MNEMONIC_PHRASE")
+sepolia_testnet_url = os.getenv("SEPOLIA")
+
+if not mnemonic_phrase:
+    print("Please provide the mnemonic phrase in the .env file.")
+    exit(1)
+
+# Connect to the Sepolia Testnet using web3.py
+web3 = Web3(Web3.HTTPProvider(sepolia_testnet_url))
+web3.eth.account.enable_unaudited_hdwallet_features()
+
+
+# Account from mnemonic phrase
+account = web3.eth.account.from_mnemonic(mnemonic_phrase)
 
 oracle_address = os.getenv('ORACLE_ADDRESS')
 gateway_address = os.environ.get('GATEWAY_ADDRESS')
@@ -63,11 +76,11 @@ if doc_ref is not None:
     print("document initialized")
     print(doc_ref.get().to_dict())
 
-blockchain_address = 'HTTP://127.0.0.1:8545'
-# Client instance to interact with the blockchain
-web3 = Web3(HTTPProvider(blockchain_address))
+# blockchain_address = 'HTTP://127.0.0.1:8545'
+# # Client instance to interact with the blockchain
+# web3 = Web3(HTTPProvider(blockchain_address))
 
-web3.eth.defaultAccount = web3.eth.accounts[0]
+# web3.eth.defaultAccount = web3.eth.accounts[0]
 
 oracle_compiled_path = 'src/abi/OracleInterface.json'
 # oracle_address = '0xE31f1289B6cF7c312f9998bD7F8CaaB14BCf30C5'
@@ -135,15 +148,39 @@ def oracle_address():
     # sets the address of oracle on web int
 
     # = onchain_contract.functions.get_rep_data(seller_id).call()
-    web_contract.functions.setOracleAddress(address).transact()
+    #web_contract.functions.setOracleAddress(address).transact()
+
+    try:
+
+        # Build the transaction
+        transaction = web_contract.functions.setOracleAddress(address).buildTransaction({
+                "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                "gas": 2000000,
+                "gasPrice": web3.toWei("10", "gwei"),
+                "nonce": web3.eth.getTransactionCount(account.address),
+            })
+
+        # Sign the transaction
+        signed_transaction = account.sign_transaction(transaction)
+
+        # Send the signed transaction
+        tx_hash = web3.eth.send_raw_transaction(
+            signed_transaction.rawTransaction)
+        tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+        print("Transaction receipt:", tx_receipt)
+    except Exception as e:
+        print("Error while sending transaction:", e)
+    
                 # sellerid, token_val, user_id, uint val(1 or 0)
                 # userid example 1234
                 # token example 104
-    web_contract.functions.adder(11, 100, 1200, 1).transact()
-    web_contract.functions.adder(11, 101, 1201, 1).transact()
-    web_contract.functions.adder(11, 102, 1202, 1).transact()
-    web_contract.functions.adder(11, 103, 1203, 0).transact()
-    web_contract.functions.adder(11, 104, 1204, 1).transact()
+
+    print("Im where dummy data supposed to be")
+    # web_contract.functions.adder(11, 100, 1200, 1).transact()
+    # web_contract.functions.adder(11, 101, 1201, 1).transact()
+    # web_contract.functions.adder(11, 102, 1202, 1).transact()
+    # web_contract.functions.adder(11, 103, 1203, 0).transact()
+    # web_contract.functions.adder(11, 104, 1204, 1).transact()
     # calls the add data several times to add dummy data
     # will later be called on front end web interface
     return jsonify({"result": "success"})
@@ -341,10 +378,30 @@ def rep_score_post():
     #print("sellerId: ", int)
     #ind_scores = request.args.get('userScores')
     #call aggr function from web interface
-        transaction = web_contract.functions.aggr(seller_id).transact()
-        web3.eth.waitForTransactionReceipt(transaction)
-        receipt = web3.eth.getTransactionReceipt(transaction)
-        print('Transaction receipt:', receipt)
+        # transaction = web_contract.functions.aggr(seller_id).transact()
+        # web3.eth.waitForTransactionReceipt(transaction)
+        # receipt = web3.eth.getTransactionReceipt(transaction)
+        # print('Transaction receipt:', receipt)
+        try:
+
+            # Build the transaction
+            transaction = web_contract.functions.aggr(seller_id).buildTransaction({
+                "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                "gas": 2000000,
+                "gasPrice": web3.toWei("10", "gwei"),
+                "nonce": web3.eth.getTransactionCount(account.address),
+            })
+
+            # Sign the transaction
+            signed_transaction = account.sign_transaction(transaction)
+
+            # Send the signed transaction
+            tx_hash = web3.eth.send_raw_transaction(
+                signed_transaction.rawTransaction)
+            tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+            print("Transaction receipt:", tx_receipt)
+        except Exception as e:
+            print("Error while sending transaction:", e)
 
         #time.sleep(2)
         score = onchain_contract.functions.get_rep_data(seller_id).call()

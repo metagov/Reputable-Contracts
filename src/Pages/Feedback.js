@@ -1,12 +1,22 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React from "react";
 import { useLocation } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 //mport Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import { Col, Row, Form } from "react-bootstrap";
-import dotenv from  'dotenv'
+import { Form } from "react-bootstrap";
+
+// Get mnemonic phrase and Infura API key from environment variables
+const mnemonicPhrase = process.env.REACT_APP_MNEMONIC_PHRASE;
+const sepolia = process.env.REACT_APP_SEPOLIA;
+
+const { ethers } = require("ethers");
+const provider = new ethers.providers.JsonRpcProvider(sepolia);
+const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase);
+const account = wallet.connect(provider);
+console.log(account.address);
 
 /**  <h2>User ID:{userID} </h2>
       <h2>Campaign ID:{campaignID} </h2>
@@ -15,40 +25,28 @@ const Feedback = () => {
   const location = useLocation();
   const storeName = location.state?.fromDashboard;
   console.log(storeName);
-  const userName = "Rashmi";
+  // const userName = "Rashmi";
   const history = useHistory();
   const [open, setOpen] = React.useState(false);
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const address = '0x971b4bc95A2C6e722d74C622254395d0bc8D8488';
-  const web_address = '0xE3347125d16AA11e430b0F4706228d683a95813f';
-const oracle_address = '0x4BCbfb450800d56f02692acb533ABea8711Eb021';
-//   const address = process.env.ADDRESS;
-// const web_address = process.env.WEB_ADDRESS;
+  const web_address = "0xfEb6Cf237c031a2d6c97E8E415064A3d1126232A";
+  const oracle_address = "0x13441a7B32E4D012a657Bc0794Fb9BF5717f186F";
 
-/*   const showModal = () => {
-    return( */
-      
-/*         )
-  } */
-  const Web3 = require('web3');
+  let MyContract = require("../abi/WebInterface.json");
 
-  const web3 = new Web3('http://localhost:8545');
-  const MyContract = require('../abi/WebInterface.json');
-  const OracleContractABI = require('../abi/OracleInterface.json')
+  MyContract = JSON.stringify(MyContract);
+  MyContract = JSON.parse(MyContract);
+  const OracleContractABI = require("../abi/OracleInterface.json");
 
-  const contract =  new web3.eth.Contract(
-    MyContract.abi,
-    //deployedNetwork.address
-    web_address
-    );
+  const contract = new ethers.Contract(web_address, MyContract.abi, account);
 
-    const OracleContract = new web3.eth.Contract(
-      OracleContractABI.abi,
-      oracle_address
-    );
-
+  const OracleContract = new ethers.Contract(
+    oracle_address,
+    OracleContractABI.abi,
+    account
+  );
 
   const yesClicked = () => {
     console.log("Print userID is " + userID);
@@ -61,79 +59,102 @@ const oracle_address = '0x4BCbfb450800d56f02692acb533ABea8711Eb021';
     //setOpen(true);
     //call setOracleAddress()
     //import Web3 from "web3";
-  
-    
+
     const init = async () => {
-    
-      const id = await web3.eth.net.getId();
-      console.log("ID:"+id)
-      const deployedNetwork = MyContract.networks[id];
-      //const web_address = '0x30e32a2Ace7225Ef840658eB0E68743E9E34539C';
-       
-  
-        //const result = await contract.methods.getData(1).call();
-        //getSellerId ()
-        //personal account
+      const result = await contract.getSellerId();
+      const parsed_sellerID = parseInt(sellerID);
+      const parsed_tokenID = parseInt(tokenID);
+      const parsed_userID = parseInt(userID);
+      const used = await contract.isUsed(parsed_sellerID, parsed_tokenID);
+      await contract.setOracleAddress(oracle_address);
+      const transactionData = contract.interface.encodeFunctionData("adder", [
+        parsed_sellerID,
+        parsed_tokenID,
+        parsed_userID,
+        1,
+      ]);
+      const gasLimit = await contract.estimateGas.adder(
+        parsed_sellerID,
+        parsed_tokenID,
+        parsed_userID,
+        1
+      );
 
-        const result = await contract.methods.getSellerId().call();
-        const parsed_sellerID = parseInt(sellerID);
-        const parsed_tokenID = parseInt(tokenID);
-        const parsed_userID = parseInt(userID);
-        const used = await contract.methods.isUsed(parsed_sellerID, parsed_tokenID).call();
-       await contract.methods.setOracleAddress(oracle_address).call();
+      const transaction = {
+        to: web_address,
+        data: transactionData,
+        gasLimit: gasLimit,
+      };
 
-        if (!used){
-          contract.methods.adder(parsed_sellerID, parsed_tokenID, parsed_userID, 1).send({from:address});//{from: '0x3dec0B5699F4511c133d9d9482B81Ac64A3Ef6eA'});
-          console.log("result:"+ result);
-          console.log("isUsed:"+ used);
+      if (!used) {
+        // Sign the transaction
+        const signedTransaction = await account.signTransaction(transaction);
 
-/*           contract.events.ScoreAdded({})//, {fromBlock:0, toBlock: 'latest'})
+        // Send the transaction
+        const transactionResponse = await provider.sendTransaction(
+          signedTransaction
+        );
+        console.log("Transaction hash:", transactionResponse.hash);
+
+        // Wait for the transaction to be mined
+        const transactionReceipt = await provider.waitForTransaction(
+          transactionResponse.hash
+        );
+        console.log("Transaction receipt:", transactionReceipt);
+
+        console.log("result:" + result);
+        console.log("isUsed:" + used);
+
+        /*           contract.events.ScoreAdded({})//, {fromBlock:0, toBlock: 'latest'})
           .on('data', async function(event){
               console.log(event.returnValues);
               //get the data and compare the token, seller id and user id
               //enable the modal to tell the user that the score has been added
           })
           .on('error', console.error); */
-          //call past events until block -100
-          //then filter the user id, token and seller and if they match, the modal runs.
+        //call past events until block -100
+        //then filter the user id, token and seller and if they match, the modal runs.
 
-          //working for past events (but not the latest + 1)
-          //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
-          await new Promise(resolve => setTimeout(resolve, 5500));
-          const latest = await web3.eth.getBlockNumber();
-          //console.log("Latest block: ", latest);
+        //working for past events (but not the latest + 1)
+        //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
+        await new Promise((resolve) => setTimeout(resolve, 5500));
+        const latest = await provider.getBlockNumber();
+        console.log("Latest block number:", latest);
 
-          const logs = await contract.getPastEvents("ScoreAdded", {
-            fromBlock: latest -100, //could be last 100 blocks
-            toBlock: latest+1,
-            filter: { token: tokenID}
-            //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
-          });
-          console.log("Logs", logs, `${logs.length} logs`);
-          for (let i = 0; i < logs.length; i++) {
-            let j = logs[i].returnValues;
-            //if (j['Result'])
-            //console.log("J value: ", j[0]);
-            //console.log("J value token: ", j['token']);
-            //console.log("TokenID: ", tokenID);
-            if (j['token'] == tokenID && j['sellerId'] == sellerID && j['user_id'] == userID){
-              console.log("token, sellerId and user id have been added to the blockchain");
-              //modal insertion
-              setOpen(true);
-              //showModal();
-              
-              break;
-            }
-          }      
+        const logs = await contract.getPastEvents("ScoreAdded", {
+          fromBlock: latest - 100, //could be last 100 blocks
+          toBlock: latest + 1,
+          filter: { token: tokenID },
+          //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
+        });
+        console.log("Logs", logs, `${logs.length} logs`);
+        for (let i = 0; i < logs.length; i++) {
+          let j = logs[i].returnValues;
+          //if (j['Result'])
+          //console.log("J value: ", j[0]);
+          //console.log("J value token: ", j['token']);
+          //console.log("TokenID: ", tokenID);
+          if (
+            j["token"] === tokenID &&
+            j["sellerId"] === sellerID &&
+            j["user_id"] === userID
+          ) {
+            console.log(
+              "token, sellerId and user id have been added to the blockchain"
+            );
+            //modal insertion
+            setOpen(true);
+            //showModal();
+
+            break;
+          }
         }
-        else{
-          setTokenUsedModal(true);
-          console.log("token is already used/not valid!")
-          //call the modal to tell the user that the token has already been used or not valid.
-        }
-
-        
-    }
+      } else {
+        setTokenUsedModal(true);
+        console.log("token is already used/not valid!");
+        //call the modal to tell the user that the token has already been used or not valid.
+      }
+    };
     init();
   };
 
@@ -147,106 +168,122 @@ const oracle_address = '0x4BCbfb450800d56f02692acb533ABea8711Eb021';
       setSName("Sainsbury");
     }
 
-    const eventListener = contract.events.ScoreAdded({})
-    .on('data', function(event) {
-      console.log('ScoreAdded event emitted:', event.returnValues);
-      // Perform actions when the event is emitted
-    })
-    .on('error', console.error);
+    contract
+      .on("ScoreAdded", function (event) {
+        console.log("ScoreAdded event emitted:", event.returnValues);
+        // Perform actions when the event is emitted
+      })
+      .on("error", console.error);
 
-    const eventListenerOracle = OracleContract.events.RequestScoreEvent({})
-    .on('data', function(event) {
-      console.log('RequestScore event emitted:', event.returnValues);
+    OracleContract.on("RequestScoreEvent", function (event) {
+      console.log("RequestScore event emitted:", event.returnValues);
       // Perform actions when the event is emitted
-    })
-    .on('error', console.error);
-
-    return () => {
-      eventListener.unsubscribe();
-      eventListenerOracle.unsubscribe();
-    };
-  }, []);
+    }).on("error", console.error);
+  }, [OracleContract, contract, sellerID]);
 
   // No button function
   const noClicked = () => {
     console.log("Nooooo");
     //setOpen(true);
-    const Web3 = require('web3');
-    
-  
-    const MyContract = require('../abi/WebInterface.json');
-    
+
     const initNo = async () => {
-      const web3 = new Web3('http://localhost:8545');
-    
-      const id = await web3.eth.net.getId();
-      const deployedNetwork = MyContract.networks[id];
-      //const web_address = '0x00f16331A8FB584C5442E929cBEA251471c61ABd';
-      const contract = new web3.eth.Contract(
-        MyContract.abi,
-        //deployedNetwork.address
-        web_address
+      //const result = await contract.methods.getData(1).call();
+      //getSellerId ()
+      //personal account
+      //web3.eth.defaultAccount = web3.eth.accounts[0];
+      const result = await contract.getSellerId();
+      const parsed_sellerID = parseInt(sellerID);
+      const parsed_tokenID = parseInt(tokenID);
+      const parsed_userID = parseInt(userID);
+      const used = await contract.isUsed(parsed_sellerID, parsed_tokenID);
+
+      const transactionData = contract.interface.encodeFunctionData("adder", [
+        parsed_sellerID,
+        parsed_tokenID,
+        parsed_userID,
+        0,
+      ]);
+      const gasLimit = await contract.estimateGas.adder(
+        parsed_sellerID,
+        parsed_tokenID,
+        parsed_userID,
+        0
+      );
+
+      const transaction = {
+        to: web_address,
+        data: transactionData,
+        gasLimit: gasLimit,
+      };
+
+      if (!used) {
+        //contract.methods.adder(parsed_sellerID, parsed_tokenID, parsed_userID, 0).send({from:address});//{from: '0x3dec0B5699F4511c133d9d9482B81Ac64A3Ef6eA'});
+        // Sign the transaction
+        const signedTransaction = await account.signTransaction(transaction);
+
+        // Send the transaction
+        const transactionResponse = await provider.sendTransaction(
+          signedTransaction
         );
-    
-        //const result = await contract.methods.getData(1).call();
-        //getSellerId ()
-        //personal account
-        //web3.eth.defaultAccount = web3.eth.accounts[0];
-        const result = await contract.methods.getSellerId().call();
-        const parsed_sellerID = parseInt(sellerID);
-        const parsed_tokenID = parseInt(tokenID);
-        const parsed_userID = parseInt(userID);
-        const used = await contract.methods.isUsed(parsed_sellerID, parsed_tokenID).call();
-        if (!used){
-          contract.methods.adder(parsed_sellerID, parsed_tokenID, parsed_userID, 0).send({from:address});//{from: '0x3dec0B5699F4511c133d9d9482B81Ac64A3Ef6eA'});
-          console.log(result);
-/*           contract.events.ScoreAdded({})//, {fromBlock:0, toBlock: 'latest'})
+        console.log("Transaction hash:", transactionResponse.hash);
+
+        // Wait for the transaction to be mined
+        const transactionReceipt = await provider.waitForTransaction(
+          transactionResponse.hash
+        );
+        console.log("Transaction receipt:", transactionReceipt);
+
+        console.log(result);
+        /*           contract.events.ScoreAdded({})//, {fromBlock:0, toBlock: 'latest'})
           .on('data', async function(event){
               console.log(event.returnValues);
               //get the data and compare the token, seller id and user id
               //enable the modal to tell the user that the score has been added
           })
           .on('error', console.error); */
-          //call past events until block -100
-          //then filter the user id, token and seller and if they match, the modal runs.
+        //call past events until block -100
+        //then filter the user id, token and seller and if they match, the modal runs.
 
-          //working for past events (but not the latest + 1)
-          //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
-          await new Promise(resolve => setTimeout(resolve, 3500));
-          const latest = await web3.eth.getBlockNumber();
-          //console.log("Latest block: ", latest);
+        //working for past events (but not the latest + 1)
+        //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
+        await new Promise((resolve) => setTimeout(resolve, 3500));
+        const latest = await provider.getBlockNumber();
+        //console.log("Latest block: ", latest);
 
-          const logs = await contract.getPastEvents("ScoreAdded", {
-            fromBlock: latest -10, //could be last 100 blocks
-            toBlock: latest+1,
-            filter: { token: tokenID}
-            //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
-          });
-          console.log("Logs", logs, `${logs.length} logs`);
-          for (let i = 0; i < logs.length; i++) {
-            let j = logs[i].returnValues;
-            //if (j['Result'])
-            //console.log("J value: ", j[0]);
-            //console.log("J value token: ", j['token']);
-            //console.log("TokenID: ", tokenID);
-            if (j['token'] == tokenID && j['sellerId'] == sellerID && j['user_id'] == userID){
-              console.log("token, sellerId and user id have been added to the blockchain");
-              //modal insertion
-              setOpen(true);
-              //showModal();
-              
-              break;
-            }
-          }      
+        const logs = await contract.getPastEvents("ScoreAdded", {
+          fromBlock: latest - 10, //could be last 100 blocks
+          toBlock: latest + 1,
+          filter: { token: tokenID },
+          //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
+        });
+        console.log("Logs", logs, `${logs.length} logs`);
+        for (let i = 0; i < logs.length; i++) {
+          let j = logs[i].returnValues;
+          //if (j['Result'])
+          //console.log("J value: ", j[0]);
+          //console.log("J value token: ", j['token']);
+          //console.log("TokenID: ", tokenID);
+          if (
+            j["token"] === tokenID &&
+            j["sellerId"] === sellerID &&
+            j["user_id"] === userID
+          ) {
+            console.log(
+              "token, sellerId and user id have been added to the blockchain"
+            );
+            //modal insertion
+            setOpen(true);
+            //showModal();
+
+            break;
+          }
         }
-        else{
-          setTokenUsedModal(true);
-          console.log("token is already used/not valid!")
-          //call the modal to tell the user that the token has already been used or not valid.
-        }
-
-        
-    }
+      } else {
+        setTokenUsedModal(true);
+        console.log("token is already used/not valid!");
+        //call the modal to tell the user that the token has already been used or not valid.
+      }
+    };
     initNo();
   };
   //Close the Model
@@ -316,30 +353,30 @@ const oracle_address = '0x4BCbfb450800d56f02692acb533ABea8711Eb021';
         </div>
       </Form>
       <Modal isOpen={open}>
-          <ModalHeader>Confirmation</ModalHeader>
-          <ModalBody>
-            <br />
-            Your rating has successfully been submitted.
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={handleClose} variant="primary">
-              Close
-            </Button>
-          </ModalFooter>
-        </Modal>
-        
-        <Modal isOpen={tokenUsedModal}>
-          <ModalHeader>Notice</ModalHeader>
-          <ModalBody>
-            <br />
-            The token is not valid.
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={handleModalClose} variant="primary">
-              Close
-            </Button>
-          </ModalFooter>
-        </Modal>
+        <ModalHeader>Confirmation</ModalHeader>
+        <ModalBody>
+          <br />
+          Your rating has successfully been submitted.
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={handleClose} variant="primary">
+            Close
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      <Modal isOpen={tokenUsedModal}>
+        <ModalHeader>Notice</ModalHeader>
+        <ModalBody>
+          <br />
+          The token is not valid.
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={handleModalClose} variant="primary">
+            Close
+          </Button>
+        </ModalFooter>
+      </Modal>
       {/* <Modal isOpen={open}>
         <ModalHeader>The Fruit Shop</ModalHeader>
         <ModalBody>

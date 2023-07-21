@@ -1,6 +1,5 @@
 from web3 import Web3, HTTPProvider
 from pathlib import Path
-from web3.middleware import geth_poa_middleware
 import time
 from phe import paillier
 import json
@@ -15,6 +14,19 @@ import os
 from dotenv import load_dotenv
 load_dotenv('.env')
 
+mnemonic_phrase = os.getenv("MNEMONIC_PHRASE")
+sepolia_testnet_url = os.getenv("SEPOLIA")
+
+if not mnemonic_phrase:
+    print("Please provide the mnemonic phrase in the .env file.")
+    exit(1)
+
+# Connect to the Sepolia Testnet using web3.py
+web3 = Web3(Web3.HTTPProvider(sepolia_testnet_url))
+web3.eth.account.enable_unaudited_hdwallet_features()
+
+# Account from mnemonic phrase
+account = web3.eth.account.from_mnemonic(mnemonic_phrase)
 
 oracle_address = os.getenv('ORACLE_ADDRESS')
 gateway_address = os.environ.get('GATEWAY_ADDRESS')
@@ -25,37 +37,39 @@ print(f"Oracle Address: {oracle_address}")
 
 
 def aggregate(seller_addr, ind_data):
-    #ind_data = array of ind scores
+    # ind_data = array of ind scores
     aggr_score = pub.encrypt(0)
-    #checks the exp responses for the seller 
-    #fetch data from ind_score beforehand
-    #fetch expected responses from smart contract
-    #exp_res = 12 #get exp responses for seller
-    #get_response count not defined (only on smart contract)
-        #get ind scores from seller
-        #function to be pulled from smart contract e.g.
-        #filled for seller. Could be dict key val of seller
-        
-        #loop through the ind score for the seller and use
-        #additive hom enc to get an aggr score
+    # checks the exp responses for the seller
+    # fetch data from ind_score beforehand
+    # fetch expected responses from smart contract
+    # exp_res = 12 #get exp responses for seller
+    # get_response count not defined (only on smart contract)
+    # get ind scores from seller
+    # function to be pulled from smart contract e.g.
+    # filled for seller. Could be dict key val of seller
+
+    # loop through the ind score for the seller and use
+    # additive hom enc to get an aggr score
     for i in ind_data:
         ind = paillier.EncryptedNumber(pub, int(i))
         aggr_score += ind
-    
+
     return str(aggr_score.ciphertext())
 
 
 def encrypt_score(score):
     return pub.encrypt(int(score)).ciphertext()
 
+
 def encryptZero():
     zero = pub.encrypt(0)
     return zero.ciphertext()
-    
+
+
 def encryptOne():
     one = pub.encrypt(1)
     return one.ciphertext()
-#tbd
+# tbd
 
 
 def handle_event(event):
@@ -66,18 +80,40 @@ def handle_event(event):
 
     if len(result) == 0:
         result = RequestScoreEvent.processReceipt(receipt, errors=DISCARD)
-        doc_ref = db.collection("individual_scores").document("jz9uo3kVGcD65PW0kkEg")
-        
+        doc_ref = db.collection("individual_scores").document(
+            "jz9uo3kVGcD65PW0kkEg")
+
         args = result[0]["args"]
         seller_id = args["sellerId"]
         individual_score = args["indi_score"]
-        token_val = args["token_val"] 
+        token_val = args["token_val"]
         user_id = args["user_id"]
-    
+
         enc_score = str(encrypt_score(individual_score))
-    
-        web_contract.functions.add(seller_id, token_val, user_id, enc_score).transact()
-        
+
+        try:
+
+            # Build the transaction
+            transaction = web_contract.functions.add(seller_id, token_val, user_id, enc_score).buildTransaction({
+                "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                "gas": 2000000,
+                "gasPrice": web3.toWei("10", "gwei"),
+                "nonce": web3.eth.getTransactionCount(account.address),
+            })
+
+            # Sign the transaction
+            signed_transaction = account.sign_transaction(transaction)
+
+            # Send the signed transaction
+            tx_hash = web3.eth.send_raw_transaction(
+                signed_transaction.rawTransaction)
+            tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+            print("Transaction receipt:", tx_receipt)
+        except Exception as e:
+            print("Error while sending transaction:", e)
+
+        # web_contract.functions.add(seller_id, token_val, user_id, enc_score)act()
+
         # with open("individual.json", "r+") as file:
         #     json_data1 = json.load(file)
         #     print(json_data1)
@@ -91,67 +127,110 @@ def handle_event(event):
         #     json.dump(json_data1, file)
         #     doc_ref.set(json_data1)
 
-    else:    
-
+    else:
 
         try:
-            doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+            doc_ref = db.collection("individual_scores").document(
+                "mjHPrqCFPf8y3vAJ9vE1")
             args = result[0]["args"]
-    
+
             # campaign_id = args["campaignId"]
             seller_id = args["sellerId"]
             user_id = args["userId"]
             enc_scores = args["array"]
-    
+
             off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-b7df1/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
             aggr_score = str(aggregate(seller_addr=None, ind_data=enc_scores))
             print("Aggregate Score: ", aggr_score)
             timestamp = str(datetime.now())
-    
+
             # Once result has been retrieved, return this back into smart contract
-            tx_hash = oracle_contract.functions.returnToGateway(gateway_address, aggr_score, off_chain_path).transact()
-            print("Transaction Hash: ", web3.toHex(tx_hash))
-            
-            # Transfer to onchain smart contract
-            onchain_contract.functions.add_rep_data(seller_id, aggr_score).transact()
-    
+            # tx_hash = oracle_contract.functions.returnToGateway(
+            #     gateway_address, aggr_score, off_chain_path)act()
+            # print("Transaction Hash: ", web3.toHex(tx_hash))
+
+            try:
+
+                # Build the transaction
+                transaction = oracle_contract.functions.returnToGateway(
+                    gateway_address, aggr_score, off_chain_path).buildTransaction({
+                        "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                        "gas": 2000000,
+                        "gasPrice": web3.toWei("10", "gwei"),
+                        "nonce": web3.eth.getTransactionCount(account.address),
+                    })
+
+                # Sign the transaction
+                signed_transaction = account.sign_transaction(transaction)
+
+                # Send the signed transaction
+                tx_hash = web3.eth.send_raw_transaction(
+                    signed_transaction.rawTransaction)
+                tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+                print("Transaction receipt:", tx_receipt)
+            except Exception as e:
+                print("Error while sending transaction:", e)
+
+                # Transfer to onchain smart contract
+                # onchain_contract.functions.add_rep_data(
+                #     seller_id, aggr_score).transact()
+
+            try:
+
+                # Build the transaction
+                transaction = onchain_contract.functions.add_rep_data(
+                    seller_id, aggr_score).buildTransaction({
+                        "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                        "gas": 2000000,
+                        "gasPrice": web3.toWei("10", "gwei"),
+                        "nonce": web3.eth.getTransactionCount(account.address),
+                    })
+
+                # Sign the transaction
+                signed_transaction = account.sign_transaction(transaction)
+
+                # Send the signed transaction
+                tx_hash = web3.eth.send_raw_transaction(
+                    signed_transaction.rawTransaction)
+                tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+                print("Transaction receipt:", tx_receipt)
+            except Exception as e:
+                print("Error while sending transaction:", e)
+
             with open("off-chain.json", "r+") as file:
                 json_data = json.load(file)
-    
+
                 for i, _id in zip(enc_scores, user_id):
                     json_data["data"].append({
                         "Timestamp": timestamp,
-                        # "campaign_id": campaign_id, 
-                        "seller_id": seller_id, 
+                        # "campaign_id": campaign_id,
+                        "seller_id": seller_id,
                         "user_id": _id,
                         "individual_score": str(i),
                         "tx_hash": web3.toHex(tx_hash)
-                        })
-    
+                    })
+
                 file.seek(0)
                 json.dump(json_data, file)
-    
+
                 doc_ref.set(json_data)
-    
-    
+
             # Write data off-chain onto a local csv file
             # with open("off-chain.csv", "a", newline='') as file:
             #     writer = csv.writer(file)
-    
+
             #     for i in enc_scores:
             #         writer.writerow([campaign_id, seller_id, user_id, encrypt_score(i), w3.toHex(tx_hash)])
-    
-            
+
             print("Request has been successful!")
-    
+
             # []
-    
+
             # balance = w3.eth.get_balance(w3.eth.defaultAccount)
             # print("The balance is now: ", balance)
-        
+
         except IndexError:
             pass
-
 
 
 # Poll for events and pass these onto 'handle_event' function
@@ -164,48 +243,45 @@ def log_loop(event_filter, poll_interval):
         time.sleep(poll_interval)
 
 
-
 # Uses a geth node running locally
-#geth_path = "C:\\Users\\prince\\Documents\\geth.ipc"
-#geth_path = '\\\\.\\pipe\\geth.ipc'
-#geth_path = "./reputablechain/geth.ipc"
-#geth_path = "\\.\pipe\geth.ipc"
-#geth_path = "\\\\.\\pipe\\geth.ipc"
-#geth_path = "/home/prince/.ethereum/goerli/geth.ipc"
+# geth_path = "C:\\Users\\prince\\Documents\\geth.ipc"
+# geth_path = '\\\\.\\pipe\\geth.ipc'
+# geth_path = "./reputablechain/geth.ipc"
+# geth_path = "\\.\pipe\geth.ipc"
+# geth_path = "\\\\.\\pipe\\geth.ipc"
+# geth_path = "/home/prince/.ethereum/goerli/geth.ipc"
 # w3 = Web3(Web3.HTTPProvider('https://rinkeby.infura.io/v3/96b121e6b8114768923adf1cb21b034d'))
-#w3 = Web3(Web3.IPCProvider('/home/ja25499/.ethereum/goerli/geth.ipc'))
-#w3 = Web3(Web3.IPCProvider(geth_path))
+# w3 = Web3(Web3.IPCProvider('/home/ja25499/.ethereum/goerli/geth.ipc'))
+# w3 = Web3(Web3.IPCProvider(geth_path))
 
 
 # This will allow it to work on Rinkeby and other PoA testnets
-#w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+# w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-#w3.eth.defaultAccount = "0x6E3a1Ce9FAB10c777d7b89c899A8EC71c6672283"
-#0x1163c525808b6fC15002137757b30793DE506F72
+# w3.eth.defaultAccount = "0x6E3a1Ce9FAB10c777d7b89c899A8EC71c6672283"
+# 0x1163c525808b6fC15002137757b30793DE506F72
 
-#w3.eth.defaultAccount = "0x1163c525808b6fC15002137757b30793DE506F72"
-#w3.eth.defaultAccount = "0x6E3a1Ce9FAB10c777d7b89c899A8EC71c6672283"
+# w3.eth.defaultAccount = "0x1163c525808b6fC15002137757b30793DE506F72"
+# w3.eth.defaultAccount = "0x6E3a1Ce9FAB10c777d7b89c899A8EC71c6672283"
 # Account must be unlocked to allow for transactions
 # Password set to: 'Password1' and '0' sets account to be be unlocked indefinitely
-#w3.geth.personal.unlock_account(w3.eth.defaultAccount, "Password1", 0)
-#w3.geth.personal.unlock_account(w3.eth.defaultAccount, "Password1", 0)
-#"Password1"
-
-blockchain_address = 'HTTP://127.0.0.1:8545'
-# Client instance to interact with the blockchain
-web3 = Web3(HTTPProvider(blockchain_address))
-# Set the default account (so we don't need to set the "from" for every transaction call)
-web3.eth.defaultAccount = web3.eth.accounts[0]
+# w3.geth.personal.unlock_account(w3.eth.defaultAccount, "Password1", 0)
+# w3.geth.personal.unlock_account(w3.eth.defaultAccount, "Password1", 0)
+# "Password1"
+# blockchain_address = 'HTTP://127.0.0.1:8545'
+# # Client instance to interact with the blockchain
+# web3 = Web3(HTTPProvider(blockchain_address))
+# # Set the default account (so we don't need to set the "from" for every transaction call)
+# web3.eth.defaultAccount = web3.eth.accounts[0]
 
 oracle_compiled_path = './src/abi/OracleInterface.json'
 # oracle_address = '0x16aed03fe56C02A49362fE224a12F70e76Dbc7dB'
 with open(oracle_compiled_path) as file:
     oracle_json = json.load(file)  # load contract info as JSON
     oracle_abi = oracle_json['abi']
-    #print("oracle_abi: ", oracle_abi)
+    # print("oracle_abi: ", oracle_abi)
 oracle_contract = web3.eth.contract(address=oracle_address, abi=oracle_abi)
-#getSellerId()
-
+# getSellerId()
 
 
 gateway_compiled_path = './src/abi/GatewayInterface.json'
@@ -231,6 +307,7 @@ with open(web_compiled_path) as file:
     web_abi = web_json['abi']
 web_contract = web3.eth.contract(address=web_address, abi=web_abi)
 
+
 def keypair_load_pyp(pub_jwk, priv_jwk):
     """Deserializer for public-private keypair, from JWK format."""
     rec_pub = json.loads(pub_jwk)
@@ -242,16 +319,16 @@ def keypair_load_pyp(pub_jwk, priv_jwk):
     priv = paillier.PaillierPrivateKey(pub, priv_p, priv_q)
     return pub, priv
 
+
 with open("phe_key.pub", "r") as f:
-     pub_jwk = f.read()
+    pub_jwk = f.read()
 
 with open("phe_private_key.priv", "r") as f:
-     priv_jwk = f.read()
+    priv_jwk = f.read()
 
 pub, priv = keypair_load_pyp(pub_jwk, priv_jwk)
 
-#pub,priv = paillier.generate_paillier_keypair(n_length=256)
-
+# pub,priv = paillier.generate_paillier_keypair(n_length=256)
 
 
 cred = credentials.Certificate('./src/abi/reputable.json')
@@ -297,7 +374,6 @@ with open("off-chain.json", "w") as file:
 #     writer.writerow(["CampaignId", "SellerId", "UserId", "IndScore", "TxHash"])
 
 
-
 RequestValueEvent = oracle_contract.events.RequestValueEvent()
 RequestScoreEvent = oracle_contract.events.RequestScoreEvent()
 block_filter = web3.eth.filter({"address": oracle_address})
@@ -305,4 +381,3 @@ block_filter = web3.eth.filter({"address": oracle_address})
 
 # Set to loop every 5 secs
 log_loop(block_filter, 5)
-
