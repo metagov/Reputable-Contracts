@@ -98,7 +98,7 @@ const Cart = () => {
       
       link.push({
         id: item.companyName,
-        link: `http://localhost:3000/feedback/1235/${item.sellerID}/${random(
+        link: `https://reputable.onrender.com/feedback/1235/${item.sellerID}/${random(
           params
         ).toFixed(0)}/1/`,
       });
@@ -180,7 +180,7 @@ const Cart = () => {
 
   return (
     <section className="py-4 container">
-      <form action="http://localhost:3000/" method="GET">
+      <form action="https://reputable.onrender.com/" method="GET">
         <div className="row justify-content-center">
           <div className="col-12"></div>
           <h5>Your Cart has {totalUniqueItems} Items</h5>
