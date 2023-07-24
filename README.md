@@ -12,6 +12,8 @@ npm start
 ```
 http://localhost:3000/feedback/S16120405/SellerID123/TK1996/CMP21/
 
+Swagger API: https://reputable-swagger-api.onrender.com/
+ 
 ```
 
 ## Requirments

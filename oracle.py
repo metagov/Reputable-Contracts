@@ -16,6 +16,7 @@ load_dotenv('.env')
 
 mnemonic_phrase = os.getenv("REACT_APP_MNEMONIC_PHRASE")
 sepolia_testnet_url = os.getenv("REACT_APP_SEPOLIA")
+etherscan_url = f"https://sepolia.etherscan.io/api?module=proxy&action=eth_getTransactionReceipt&txhash="
 
 if not mnemonic_phrase:
     print("Please provide the mnemonic phrase in the .env file.")
@@ -97,7 +98,7 @@ def handle_event(event):
             transaction = web_contract.functions.add(seller_id, token_val, user_id, enc_score).buildTransaction({
                 "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
-                "gasPrice": web3.toWei("10", "gwei"),
+                "gasPrice": web3.toWei("20", "gwei"),
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 
@@ -108,7 +109,10 @@ def handle_event(event):
             tx_hash = web3.eth.send_raw_transaction(
                 signed_transaction.rawTransaction)
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-            print("Transaction receipt:", tx_receipt)
+            if tx_receipt:
+                print("Transaction receipt recieved" )
+            else:
+                print("Transaction reciept not recieved")
         except Exception as e:
             print("Error while sending transaction:", e)
 
@@ -156,7 +160,7 @@ def handle_event(event):
                     gateway_address, aggr_score, off_chain_path).buildTransaction({
                         "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
                         "gas": 2000000,
-                        "gasPrice": web3.toWei("10", "gwei"),
+                        "gasPrice": web3.toWei("20", "gwei"),
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
 
@@ -167,7 +171,10 @@ def handle_event(event):
                 tx_hash = web3.eth.send_raw_transaction(
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-                print("Transaction receipt:", tx_receipt)
+                if tx_receipt:
+                     print("Transaction receipt:", etherscan_url + str(tx_hash) )
+                else:
+                    print("Transaction reciept not recieved")
             except Exception as e:
                 print("Error while sending transaction:", e)
 
@@ -182,7 +189,7 @@ def handle_event(event):
                     seller_id, aggr_score).buildTransaction({
                         "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
                         "gas": 2000000,
-                        "gasPrice": web3.toWei("10", "gwei"),
+                        "gasPrice": web3.toWei("20", "gwei"),
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
 
@@ -193,7 +200,11 @@ def handle_event(event):
                 tx_hash = web3.eth.send_raw_transaction(
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-                print("Transaction receipt:", tx_receipt)
+                if tx_receipt:
+                     print("Transaction receipt:", etherscan_url + str(tx_hash) )
+                else:
+                    print("Transaction reciept not recieved")         
+                    
             except Exception as e:
                 print("Error while sending transaction:", e)
 

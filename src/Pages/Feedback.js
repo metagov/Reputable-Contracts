@@ -66,7 +66,7 @@ const Feedback = () => {
       const parsed_tokenID = parseInt(tokenID);
       const parsed_userID = parseInt(userID);
       const used = await contract.isUsed(parsed_sellerID, parsed_tokenID);
-      await contract.setOracleAddress(oracle_address);
+      //await contract.setOracleAddress(oracle_address);
       const transactionData = contract.interface.encodeFunctionData("adder", [
         parsed_sellerID,
         parsed_tokenID,
@@ -79,11 +79,15 @@ const Feedback = () => {
         parsed_userID,
         1
       );
+      const nonce = await provider.getTransactionCount(wallet.address);
+
 
       const transaction = {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
+        gasPrice: ethers.utils.parseUnits("20", "gwei"),
+        nonce: nonce
       };
 
       if (!used) {
@@ -119,21 +123,23 @@ const Feedback = () => {
         //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
         await new Promise((resolve) => setTimeout(resolve, 5500));
         const latest = await provider.getBlockNumber();
+        const fromBlock = latest - 100; // Last 100 blocks
+        const toBlock = latest + 1;
         console.log("Latest block number:", latest);
+        const eventFilter = contract.filters.ScoreAdded(null, tokenID, null); // Adjust the event name and arguments according to your contract
 
-        const logs = await contract.getPastEvents("ScoreAdded", {
-          fromBlock: latest - 100, //could be last 100 blocks
-          toBlock: latest + 1,
-          filter: { token: tokenID },
-          //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
-        });
+        const logs = await contract.queryFilter(eventFilter, fromBlock, toBlock);
+
+        // const logs = await contract.getPastEvents("ScoreAdded", {
+        //   fromBlock: latest - 100, //could be last 100 blocks
+        //   toBlock: latest + 1,
+        //   filter: { token: tokenID },
+        //   //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
+        // });
         console.log("Logs", logs, `${logs.length} logs`);
         for (let i = 0; i < logs.length; i++) {
           let j = logs[i].returnValues;
-          //if (j['Result'])
-          //console.log("J value: ", j[0]);
-          //console.log("J value token: ", j['token']);
-          //console.log("TokenID: ", tokenID);
+         
           if (
             j["token"] === tokenID &&
             j["sellerId"] === sellerID &&
@@ -142,9 +148,7 @@ const Feedback = () => {
             console.log(
               "token, sellerId and user id have been added to the blockchain"
             );
-            //modal insertion
             setOpen(true);
-            //showModal();
 
             break;
           }
@@ -209,11 +213,14 @@ const Feedback = () => {
         parsed_userID,
         0
       );
+      const nonce = await provider.getTransactionCount(wallet.address);
 
       const transaction = {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
+        gasPrice: ethers.utils.parseUnits("20", "gwei"),
+        nonce: nonce
       };
 
       if (!used) {
@@ -248,14 +255,20 @@ const Feedback = () => {
         //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
         await new Promise((resolve) => setTimeout(resolve, 3500));
         const latest = await provider.getBlockNumber();
+        const fromBlock = latest - 10; // Last 100 blocks
+        const toBlock = latest + 1;
+        console.log("Latest block number:", latest);
+        const eventFilter = contract.filters.ScoreAdded(null, tokenID, null); // Adjust the event name and arguments according to your contract
+
+        const logs = await contract.queryFilter(eventFilter, fromBlock, toBlock);
         //console.log("Latest block: ", latest);
 
-        const logs = await contract.getPastEvents("ScoreAdded", {
-          fromBlock: latest - 10, //could be last 100 blocks
-          toBlock: latest + 1,
-          filter: { token: tokenID },
-          //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
-        });
+        // const logs = await contract.getPastEvents("ScoreAdded", {
+        //   fromBlock: latest - 10, //could be last 100 blocks
+        //   toBlock: latest + 1,
+        //   filter: { token: tokenID },
+        //   //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
+        // });
         console.log("Logs", logs, `${logs.length} logs`);
         for (let i = 0; i < logs.length; i++) {
           let j = logs[i].returnValues;

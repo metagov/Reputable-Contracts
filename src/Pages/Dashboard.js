@@ -124,7 +124,7 @@ const Dashboard = () => {
   const getSellerScore = async (sellerId) => {
     console.log("Assign clicked");
     //alert("You clicked assign");
-    const getIndScore = await fetch("http://localhost:5000/reputation_score", {
+    const getIndScore = await fetch("https://reputable-swagger-api.onrender.com/reputation_score", {
       method: "POST",
       mode: "cors",
       cache: "no-cache",
@@ -149,7 +149,7 @@ const Dashboard = () => {
     //Fetch Needed to be called with seller id and set response
     //Get the data  from fetch and store it in a variable and then just show
     const t2 = performance.now();
-    fetch("http://localhost:5000/verify_reputation?sellerId=" + sellerId, {
+    fetch("https://reputable-swagger-api.onrender.com/verify_reputation?sellerId=" + sellerId, {
       method: "GET",
       mode: "cors",
       cache: "no-cache",

@@ -37,14 +37,14 @@ for seller_id in seller_ids:
         ethereum_address = seller_map[str(seller_id)]
 
         # Fetch reputation
-        reputation_url = f'http://localhost:5000/reputation?sellerId={seller_id}'
+        reputation_url = f'https://reputable-swagger-api.onrender.com/reputation?sellerId={seller_id}'
         reputation_response = requests.get(reputation_url)
         print(reputation_response)
         reputation = reputation_response.json()
         print(reputation)
 
         # Verify reputation
-        verify_url = f'http://localhost:5000/verify_reputation?sellerId={seller_id}'
+        verify_url = f'https://reputable-swagger-api.onrender.com/verify_reputation?sellerId={seller_id}'
         verify_response = requests.get(verify_url)
         print(verify_response)
         verify_reputation = verify_response.json()
