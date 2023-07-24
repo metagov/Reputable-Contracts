@@ -126,33 +126,39 @@ const Feedback = () => {
         const fromBlock = latest - 100; // Last 100 blocks
         const toBlock = latest + 1;
         console.log("Latest block number:", latest);
-        const eventFilter = contract.filters.ScoreAdded(null, tokenID, null); // Adjust the event name and arguments according to your contract
+        const eventFilter = contract.filters.ScoreAdded(null,null, null); // Adjust the event name and arguments according to your contract
 
-        const logs = await contract.queryFilter(eventFilter, fromBlock, toBlock);
+        const events = await contract.queryFilter(eventFilter, fromBlock, toBlock);
+  console.log("events:" + events)
+         // Manually filter events by tokenID
+  const filteredEvents = events.filter((event) => {
+    // Decode the event data to get the tokenID value
+    const decodedData = contract.interface.parseLog(event);
+    const eventTokenID = decodedData.args[2];
+    
+    return eventTokenID.toString() === tokenID; // Filter by the desired tokenID
+  });
 
-        // const logs = await contract.getPastEvents("ScoreAdded", {
-        //   fromBlock: latest - 100, //could be last 100 blocks
-        //   toBlock: latest + 1,
-        //   filter: { token: tokenID },
-        //   //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
-        // });
-        console.log("Logs", logs, `${logs.length} logs`);
-        for (let i = 0; i < logs.length; i++) {
-          let j = logs[i].returnValues;
+  console.log("Filtered events:", filteredEvents);
+
+     
+        // console.log("Logs", logs, `${logs.length} logs`);
+        // for (let i = 0; i < logs.length; i++) {
+        //   let j = logs[i].returnValues;
          
-          if (
-            j["token"] === tokenID &&
-            j["sellerId"] === sellerID &&
-            j["user_id"] === userID
-          ) {
-            console.log(
-              "token, sellerId and user id have been added to the blockchain"
-            );
-            setOpen(true);
+        //   if (
+        //     j["token"] === tokenID &&
+        //     j["sellerId"] === sellerID &&
+        //     j["user_id"] === userID
+        //   ) {
+        //     console.log(
+        //       "token, sellerId and user id have been added to the blockchain"
+        //     );
+        //     setOpen(true);
 
-            break;
-          }
-        }
+        //     break;
+        //   }
+        // }
       } else {
         setTokenUsedModal(true);
         console.log("token is already used/not valid!");
@@ -258,9 +264,17 @@ const Feedback = () => {
         const fromBlock = latest - 10; // Last 100 blocks
         const toBlock = latest + 1;
         console.log("Latest block number:", latest);
-        const eventFilter = contract.filters.ScoreAdded(null, tokenID, null); // Adjust the event name and arguments according to your contract
-
-        const logs = await contract.queryFilter(eventFilter, fromBlock, toBlock);
+        const eventFilter = contract.filters.ScoreAdded(null, null, null); // Adjust the event name and arguments according to your contract
+        const events = await contract.queryFilter(eventFilter, fromBlock, toBlock);
+        const filteredEvents = events.filter((event) => {
+          // Decode the event data to get the tokenID value
+          const decodedData = contract.interface.parseLog(event);
+          const eventTokenID = decodedData.args[2];
+          
+          return eventTokenID.toString() === tokenID; // Filter by the desired tokenID
+        });
+      
+        console.log("Filtered events:", filteredEvents);
         //console.log("Latest block: ", latest);
 
         // const logs = await contract.getPastEvents("ScoreAdded", {
@@ -269,28 +283,29 @@ const Feedback = () => {
         //   filter: { token: tokenID },
         //   //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
         // });
-        console.log("Logs", logs, `${logs.length} logs`);
-        for (let i = 0; i < logs.length; i++) {
-          let j = logs[i].returnValues;
-          //if (j['Result'])
-          //console.log("J value: ", j[0]);
-          //console.log("J value token: ", j['token']);
-          //console.log("TokenID: ", tokenID);
-          if (
-            j["token"] === tokenID &&
-            j["sellerId"] === sellerID &&
-            j["user_id"] === userID
-          ) {
-            console.log(
-              "token, sellerId and user id have been added to the blockchain"
-            );
-            //modal insertion
-            setOpen(true);
-            //showModal();
+        
+        // console.log("Logs", logs, `${logs.length} logs`);
+        // for (let i = 0; i < logs.length; i++) {
+        //   let j = logs[i].returnValues;
+        //   //if (j['Result'])
+        //   //console.log("J value: ", j[0]);
+        //   //console.log("J value token: ", j['token']);
+        //   //console.log("TokenID: ", tokenID);
+        //   if (
+        //     j["token"] === tokenID &&
+        //     j["sellerId"] === sellerID &&
+        //     j["user_id"] === userID
+        //   ) {
+        //     console.log(
+        //       "token, sellerId and user id have been added to the blockchain"
+        //     );
+        //     //modal insertion
+        //     setOpen(true);
+        //     //showModal();
 
-            break;
-          }
-        }
+        //     break;
+        //   }
+        // }
       } else {
         setTokenUsedModal(true);
         console.log("token is already used/not valid!");

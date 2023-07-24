@@ -172,7 +172,7 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                     print("Transaction receipt:", etherscan_url + str(tx_hash) )
+                    print("Transaction receipt recieved" )
                 else:
                     print("Transaction reciept not recieved")
             except Exception as e:
@@ -201,7 +201,7 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                     print("Transaction receipt:", etherscan_url + str(tx_hash) )
+                     print("Transaction receipt recieved" )
                 else:
                     print("Transaction reciept not recieved")         
                     
