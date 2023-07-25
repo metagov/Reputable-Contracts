@@ -164,7 +164,7 @@ def oracle_address():
         transaction = web_contract.functions.setOracleAddress(address).buildTransaction({
                 "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
-                "gasPrice": web3.toWei("10", "gwei"),
+                "gasPrice": web3.eth.gas_price,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 
@@ -401,7 +401,7 @@ def rep_score_post():
             transaction = web_contract.functions.aggr(seller_id).buildTransaction({
                 "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
-                "gasPrice": web3.toWei("10", "gwei"),
+                "gasPrice": web3.eth.gas_price,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 

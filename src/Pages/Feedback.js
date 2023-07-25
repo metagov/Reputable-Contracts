@@ -80,12 +80,12 @@ const Feedback = () => {
       );
       const nonce = await provider.getTransactionCount(wallet.address);
 
-
+      
       const transaction = {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
-        gasPrice: ethers.utils.parseUnits("20", "gwei"),
+        gasPrice: await provider.getGasPrice(),
         nonce: nonce
       };
 
@@ -224,7 +224,7 @@ const Feedback = () => {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
-        gasPrice: ethers.utils.parseUnits("20", "gwei"),
+        gasPrice: await provider.getGasPrice(),
         nonce: nonce
       };
 

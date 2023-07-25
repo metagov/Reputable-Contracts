@@ -45,7 +45,7 @@ try:
     transaction = web_contract.functions.setOracleAddress(oracle_address).buildTransaction({
         "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
         "gas": 2000000,
-        "gasPrice": w3.toWei("10", "gwei"),
+        "gasPrice": w3.eth.gas_price,
         "nonce": w3.eth.getTransactionCount(account.address),
     })
 
