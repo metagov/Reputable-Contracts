@@ -23,13 +23,15 @@ load_dotenv('.env')
 
 mnemonic_phrase = os.getenv("REACT_APP_MNEMONIC_PHRASE")
 sepolia_testnet_url = os.getenv("REACT_APP_SEPOLIA")
+goreli_testnet_url = os.getenv("REACT_APP_GORELI")
+
 
 if not mnemonic_phrase:
     print("Please provide the mnemonic phrase in the .env file.")
     exit(1)
 
 # Connect to the Sepolia Testnet using web3.py
-web3 = Web3(Web3.HTTPProvider(sepolia_testnet_url))
+web3 = Web3(Web3.HTTPProvider(goreli_testnet_url))
 web3.eth.account.enable_unaudited_hdwallet_features()
 
 

@@ -11,9 +11,9 @@ import { Form } from "react-bootstrap";
 // Get mnemonic phrase and Infura API key from environment variables
 const mnemonicPhrase = process.env.REACT_APP_MNEMONIC_PHRASE;
 const sepolia = process.env.REACT_APP_SEPOLIA;
-
+const goreli = process.env.REACT_APP_GORELI;
 const { ethers } = require("ethers");
-const provider = new ethers.providers.JsonRpcProvider(sepolia);
+const provider = new ethers.providers.JsonRpcProvider(goreli);
 const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase);
 const account = wallet.connect(provider);
 console.log(account.address);
@@ -80,12 +80,13 @@ const Feedback = () => {
       );
       const nonce = await provider.getTransactionCount(wallet.address);
 
-      
+      const gasPrice = await provider.getGasPrice();
+
       const transaction = {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
-        gasPrice: await provider.getGasPrice(),
+        gasPrice: gasPrice,
         nonce: nonce
       };
 
@@ -219,12 +220,12 @@ const Feedback = () => {
         0
       );
       const nonce = await provider.getTransactionCount(wallet.address);
-
+      const gasPrice = await provider.getGasPrice();
       const transaction = {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
-        gasPrice: await provider.getGasPrice(),
+        gasPrice: gasPrice ,
         nonce: nonce
       };
 
