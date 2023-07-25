@@ -36,10 +36,10 @@ web3.eth.account.enable_unaudited_hdwallet_features()
 # Account from mnemonic phrase
 account = web3.eth.account.from_mnemonic(mnemonic_phrase)
 
-oracle_address = os.getenv('REACT_APP_ORACLE_ADDRESS')
-gateway_address = os.environ.get('REACT_APP_GATEWAY_ADDRESS')
-onchain_address = os.environ.get('REACT_APP_ONCHAIN_ADDRESS')
-web_address = os.environ.get('REACT_APP_WEB_ADDRESS')
+oracle_address = os.getenv('REACT_APP_GORELI_ORACLE_ADDRESS')
+gateway_address = os.environ.get('REACT_APP_GORELI_GATEWAY_ADDRESS')
+onchain_address = os.environ.get('REACT_APP_GORELI_ONCHAIN_ADDRESS')
+web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 
 print(f"Envionment variables initialized")
 
@@ -154,7 +154,7 @@ def oracle_address():
 
         # Build the transaction
         transaction = web_contract.functions.setOracleAddress(address).buildTransaction({
-                "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
                 "gasPrice": web3.toWei("10", "gwei"),
                 "nonce": web3.eth.getTransactionCount(account.address),
@@ -386,7 +386,7 @@ def rep_score_post():
 
             # Build the transaction
             transaction = web_contract.functions.aggr(seller_id).buildTransaction({
-                "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
                 "gasPrice": web3.toWei("10", "gwei"),
                 "nonce": web3.eth.getTransactionCount(account.address),

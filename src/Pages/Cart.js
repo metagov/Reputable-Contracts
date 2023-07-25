@@ -89,7 +89,7 @@ const Cart = () => {
 
     items.map((item, index) => {
    
-      const linkUrl = `https://reputable-swagger-api.onrender.com/feedback/1235/${item.sellerID}/${random(
+      const linkUrl = `http://localhost:3000/feedback/1235/${item.sellerID}/${random(
       params
     ).toFixed(0)}/1/`; 
       link.push({

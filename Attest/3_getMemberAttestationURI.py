@@ -82,7 +82,7 @@ for seller_id in seller_ids:
             'Content-Type': 'application/json',
             'X-Access-Key': jsonBinAccessKey,
             'X-Bin-Private': "false",
-            'X-Bin-Name': "memberAttestation"+{seller_id},
+            'X-Bin-Name': "memberAttestation" + str(seller_id),
         }
         req = requests.post(url, json=seller_data, headers=headers)
         print(req.text)

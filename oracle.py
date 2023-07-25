@@ -29,12 +29,19 @@ web3.eth.account.enable_unaudited_hdwallet_features()
 # Account from mnemonic phrase
 account = web3.eth.account.from_mnemonic(mnemonic_phrase)
 
-oracle_address = os.getenv('REACT_APP_ORACLE_ADDRESS')
-gateway_address = os.environ.get('REACT_APP_GATEWAY_ADDRESS')
-onchain_address = os.environ.get('REACT_APP_ONCHAIN_ADDRESS')
-web_address = os.environ.get('REACT_APP_WEB_ADDRESS')
+oracle_address = os.getenv('REACT_APP_GORELI_ORACLE_ADDRESS')
+gateway_address = os.environ.get('REACT_APP_GORELI_GATEWAY_ADDRESS')
+onchain_address = os.environ.get('REACT_APP_GORELI_ONCHAIN_ADDRESS')
+web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 
 print(f"Oracle Address: {oracle_address}")
+
+async def GetGasPrice():
+    try:
+        gas_price = await web3.eth.gas_price
+        return gas_price
+    except Exception as e:
+        print("Error calculating Gas Price:", str(e))
 
 
 def aggregate(seller_addr, ind_data):
@@ -82,7 +89,7 @@ def handle_event(event):
     if len(result) == 0:
         result = RequestScoreEvent.processReceipt(receipt, errors=DISCARD)
         doc_ref = db.collection("individual_scores").document(
-            "jz9uo3kVGcD65PW0kkEg")
+            "jz9uo3kVGcD65PW0kkEg") 
 
         args = result[0]["args"]
         seller_id = args["sellerId"]
@@ -96,9 +103,9 @@ def handle_event(event):
 
             # Build the transaction
             transaction = web_contract.functions.add(seller_id, token_val, user_id, enc_score).buildTransaction({
-                "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
-                "gasPrice": web3.toWei("20", "gwei"),
+                "gasPrice": web3.eth.gas_price,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 
@@ -158,9 +165,9 @@ def handle_event(event):
                 # Build the transaction
                 transaction = oracle_contract.functions.returnToGateway(
                     gateway_address, aggr_score, off_chain_path).buildTransaction({
-                        "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                        "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                         "gas": 2000000,
-                        "gasPrice": web3.toWei("20", "gwei"),
+                        "gasPrice": web3.eth.gas_price,
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
 
@@ -187,9 +194,9 @@ def handle_event(event):
                 # Build the transaction
                 transaction = onchain_contract.functions.add_rep_data(
                     seller_id, aggr_score).buildTransaction({
-                        "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+                        "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                         "gas": 2000000,
-                        "gasPrice": web3.toWei("20", "gwei"),
+                        "gasPrice": web3.eth.gas_price,
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
 

@@ -43,7 +43,7 @@ try:
 
     # Build the transaction
     transaction = web_contract.functions.setOracleAddress(oracle_address).buildTransaction({
-        "chainId": 11155111,  # Replace with the chain ID of the Sepolia Testnet
+        "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
         "gas": 2000000,
         "gasPrice": w3.toWei("10", "gwei"),
         "nonce": w3.eth.getTransactionCount(account.address),

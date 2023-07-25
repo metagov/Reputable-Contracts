@@ -31,13 +31,12 @@ const Feedback = () => {
   const [tokenUsedModal, setTokenUsedModal] = React.useState(false);
   const { userID, sellerID, campaignID, tokenID } = useParams();
   const [sName, setSName] = React.useState("");
-  const web_address = "0xfEb6Cf237c031a2d6c97E8E415064A3d1126232A";
-  const oracle_address = "0x13441a7B32E4D012a657Bc0794Fb9BF5717f186F";
+  const web_address = "0xDafdC2Ae8ceEB8c4F70c8010Bcd7aD6853CeF532";
+  const oracle_address = "0x42F7Cf57BD6C0C8d92EBb3F1Ca4166E1A6c4229B";
 
   let MyContract = require("../abi/WebInterface.json");
 
-  MyContract = JSON.stringify(MyContract);
-  MyContract = JSON.parse(MyContract);
+
   const OracleContractABI = require("../abi/OracleInterface.json");
 
   const contract = new ethers.Contract(web_address, MyContract.abi, account);
