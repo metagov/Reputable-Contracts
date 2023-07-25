@@ -50,7 +50,7 @@ for seller_id in seller_ids:
         verify_reputation = verify_response.json()
 
         # Create attestationURI value
-        attestation_uri = f"https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/memberAttestationsURI/{ethereum_address}"
+        attestation_uri = f"https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/memberAttestationURI/{ethereum_address}"
         # Initialize The DAO URI, here its The Fruit Shop
         daoURI = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/DAOURI/TheFruitShop"
         # Calculate expiration date (1 week from the upload date)
