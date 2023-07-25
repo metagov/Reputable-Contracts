@@ -26,7 +26,8 @@ if not mnemonic_phrase:
 # Connect to the Sepolia Testnet using web3.py
 web3 = Web3(Web3.HTTPProvider(goreli_testnet_url))
 web3.eth.account.enable_unaudited_hdwallet_features()
-
+network_id = web3.eth.chainId
+print("Active on Network ID:", network_id)
 # Account from mnemonic phrase
 account = web3.eth.account.from_mnemonic(mnemonic_phrase)
 
@@ -105,7 +106,7 @@ def handle_event(event):
             # Build the transaction
             transaction = web_contract.functions.add(seller_id, token_val, user_id, enc_score).buildTransaction({
                 "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
-                "gas": 2000000,
+                "gas": 5000000,
                 "gasPrice": web3.eth.gas_price,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
@@ -122,7 +123,7 @@ def handle_event(event):
             else:
                 print("Transaction reciept not recieved")
         except Exception as e:
-            print("Error while sending transaction:", e)
+            print("Error while sending Add transaction, when handling RequestScoreEvent:", e)
 
         # web_contract.functions.add(seller_id, token_val, user_id, enc_score)act()
 
@@ -167,7 +168,7 @@ def handle_event(event):
                 transaction = oracle_contract.functions.returnToGateway(
                     gateway_address, aggr_score, off_chain_path).buildTransaction({
                         "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
-                        "gas": 2000000,
+                        "gas": 5000000,
                         "gasPrice": web3.eth.gas_price,
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
@@ -184,7 +185,7 @@ def handle_event(event):
                 else:
                     print("Transaction reciept not recieved")
             except Exception as e:
-                print("Error while sending transaction:", e)
+                print("Error while sending ReturnToGateway transaction, when handling RequestValueEvent:", e)
 
                 # Transfer to onchain smart contract
                 # onchain_contract.functions.add_rep_data(
@@ -196,7 +197,7 @@ def handle_event(event):
                 transaction = onchain_contract.functions.add_rep_data(
                     seller_id, aggr_score).buildTransaction({
                         "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
-                        "gas": 2000000,
+                        "gas": 5000000,
                         "gasPrice": web3.eth.gas_price,
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
@@ -214,7 +215,7 @@ def handle_event(event):
                     print("Transaction reciept not recieved")         
                     
             except Exception as e:
-                print("Error while sending transaction:", e)
+                print("Error while sending Add_Rep_data transaction, when handling RequestValueEvent:", e)
 
             with open("off-chain.json", "r+") as file:
                 json_data = json.load(file)

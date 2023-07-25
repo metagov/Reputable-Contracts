@@ -33,10 +33,12 @@ if not mnemonic_phrase:
 # Connect to the Sepolia Testnet using web3.py
 web3 = Web3(Web3.HTTPProvider(goreli_testnet_url))
 web3.eth.account.enable_unaudited_hdwallet_features()
-
+network_id = web3.eth.chainId
+print("Active on Network ID:", network_id)
 
 # Account from mnemonic phrase
 account = web3.eth.account.from_mnemonic(mnemonic_phrase)
+print(account.address)
 
 oracle_address = os.getenv('REACT_APP_GORELI_ORACLE_ADDRESS')
 gateway_address = os.environ.get('REACT_APP_GORELI_GATEWAY_ADDRESS')
@@ -76,7 +78,7 @@ db = firestore.client()
 doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
 if doc_ref is not None:
     print("document initialized")
-    print(doc_ref.get().to_dict())
+    #print(doc_ref.get().to_dict())
 
 # blockchain_address = 'HTTP://127.0.0.1:8545'
 # # Client instance to interact with the blockchain
@@ -158,7 +160,7 @@ def oracle_address():
         transaction = web_contract.functions.setOracleAddress(address).buildTransaction({
                 "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
-                "gasPrice": web3.eth.gas_price,
+                "gasPrice": (web3.eth.gas_price)*2,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 
@@ -390,7 +392,7 @@ def rep_score_post():
             transaction = web_contract.functions.aggr(seller_id).buildTransaction({
                 "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 2000000,
-                "gasPrice": web3.eth.gas_price,
+                "gasPrice": (web3.eth.gas_price)*2,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 
@@ -401,14 +403,14 @@ def rep_score_post():
             tx_hash = web3.eth.send_raw_transaction(
                 signed_transaction.rawTransaction)
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-            print("Transaction receipt:", tx_receipt)
+            print("Transaction Aggr sent, receipt:", tx_receipt)
         except Exception as e:
             print("Error while sending transaction:", e)
 
         #time.sleep(2)
         score = onchain_contract.functions.get_rep_data(seller_id).call()
         print("score" + score)
-        #time.sleep(2) 
+        time.sleep(2) 
         #wait 2 secs
             #call the onchain function to get the aggr score.
             ##Send this to the aggregator

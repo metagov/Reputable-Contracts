@@ -36,7 +36,7 @@ web_contract = w3.eth.contract(address=web_address, abi=web_abi)
 
 
 # Set the address value to pass to the function
-oracle_address = os.getenv('ORACLE_ADDRESS')
+oracle_address = os.getenv('REACT_APP_GORELI_ORACLE_ADDRESS')
 
 # Call the contract function
 #transaction = web_contract.functions.setOracleAddress(oracle_address).transact()

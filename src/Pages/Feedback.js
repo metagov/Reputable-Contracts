@@ -7,6 +7,7 @@ import { useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { Form } from "react-bootstrap";
+const Web3 = require("web3");
 
 // Get mnemonic phrase and Infura API key from environment variables
 const mnemonicPhrase = process.env.REACT_APP_MNEMONIC_PHRASE;
@@ -14,6 +15,8 @@ const sepolia = process.env.REACT_APP_SEPOLIA;
 const goreli = process.env.REACT_APP_GORELI;
 const { ethers } = require("ethers");
 const provider = new ethers.providers.JsonRpcProvider(goreli);
+const web3 = new Web3(goreli);
+
 const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase);
 const account = wallet.connect(provider);
 console.log(account.address);
@@ -40,6 +43,11 @@ const Feedback = () => {
   const OracleContractABI = require("../abi/OracleInterface.json");
 
   const contract = new ethers.Contract(web_address, MyContract.abi, account);
+  const web3Webcontract =  new web3.eth.Contract(
+    MyContract.abi,
+    //deployedNetwork.address
+    web_address
+    );
 
   const OracleContract = new ethers.Contract(
     oracle_address,
@@ -65,6 +73,26 @@ const Feedback = () => {
       const parsed_tokenID = parseInt(tokenID);
       const parsed_userID = parseInt(userID);
       const used = await contract.isUsed(parsed_sellerID, parsed_tokenID);
+      const latest = await provider.getBlockNumber();
+
+      const logs = await web3Webcontract.getPastEvents("ScoreAdded", {
+        fromBlock: latest -10, //could be last 100 blocks
+        toBlock: latest+1,
+        filter: { token: tokenID}
+      });
+      console.log("Logs", logs, `${logs.length} logs`);
+      for (let i = 0; i < logs.length; i++) {
+        let j = logs[i].returnValues;
+      
+        if (j['token'] === tokenID && j['sellerId'] === sellerID && j['user_id'] === userID){
+          console.log("token, sellerId and user id have been added to the blockchain");
+          //modal insertion
+          setOpen(true);
+          //showModal();
+          
+          break;
+        }
+      }
       //await contract.setOracleAddress(oracle_address);
       const transactionData = contract.interface.encodeFunctionData("adder", [
         parsed_sellerID,
@@ -86,7 +114,7 @@ const Feedback = () => {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
-        gasPrice: gasPrice,
+        gasPrice: gasPrice*2,
         nonce: nonce
       };
 
@@ -141,24 +169,25 @@ const Feedback = () => {
 
   console.log("Filtered events:", filteredEvents);
 
-     
-        // console.log("Logs", logs, `${logs.length} logs`);
-        // for (let i = 0; i < logs.length; i++) {
-        //   let j = logs[i].returnValues;
-         
-        //   if (
-        //     j["token"] === tokenID &&
-        //     j["sellerId"] === sellerID &&
-        //     j["user_id"] === userID
-        //   ) {
-        //     console.log(
-        //       "token, sellerId and user id have been added to the blockchain"
-        //     );
-        //     setOpen(true);
-
-        //     break;
-        //   }
-        // }
+  const logs = await web3Webcontract.getPastEvents("ScoreAdded", {
+    fromBlock: latest -100, //could be last 100 blocks
+    toBlock: latest+1,
+    filter: { token: tokenID}
+  });
+  console.log("Logs", logs, `${logs.length} logs`);
+  for (let i = 0; i < logs.length; i++) {
+    let j = logs[i].returnValues;
+  
+    if (j['token'] === tokenID && j['sellerId'] === sellerID && j['user_id'] === userID){
+      console.log("token, sellerId and user id have been added to the blockchain");
+      //modal insertion
+      setOpen(true);
+      //showModal();
+      
+      break;
+    }
+  }  
+      
       } else {
         setTokenUsedModal(true);
         console.log("token is already used/not valid!");
@@ -205,7 +234,27 @@ const Feedback = () => {
       const parsed_sellerID = parseInt(sellerID);
       const parsed_tokenID = parseInt(tokenID);
       const parsed_userID = parseInt(userID);
+      const latest = await provider.getBlockNumber();
+
       const used = await contract.isUsed(parsed_sellerID, parsed_tokenID);
+      const logs = await web3Webcontract.getPastEvents("ScoreAdded", {
+        fromBlock: latest -10, //could be last 100 blocks
+        toBlock: latest+1,
+        filter: { token: tokenID}
+      });
+      console.log("Logs", logs, `${logs.length} logs`);
+      for (let i = 0; i < logs.length; i++) {
+        let j = logs[i].returnValues;
+      
+        if (j['token'] === tokenID && j['sellerId'] === sellerID && j['user_id'] === userID){
+          console.log("token, sellerId and user id have been added to the blockchain");
+          //modal insertion
+          setOpen(true);
+          //showModal();
+          
+          break;
+        }
+      }
 
       const transactionData = contract.interface.encodeFunctionData("adder", [
         parsed_sellerID,
@@ -225,7 +274,7 @@ const Feedback = () => {
         to: web_address,
         data: transactionData,
         gasLimit: gasLimit,
-        gasPrice: gasPrice ,
+        gasPrice: gasPrice*2 ,
         nonce: nonce
       };
 
@@ -260,8 +309,7 @@ const Feedback = () => {
         //working for past events (but not the latest + 1)
         //setTimeout(() => { console.log("Waiting for event to be emitted!"); }, 2000);
         await new Promise((resolve) => setTimeout(resolve, 3500));
-        const latest = await provider.getBlockNumber();
-        const fromBlock = latest - 10; // Last 100 blocks
+        const fromBlock = latest - 100; // Last 100 blocks
         const toBlock = latest + 1;
         console.log("Latest block number:", latest);
         const eventFilter = contract.filters.ScoreAdded(null, null, null); // Adjust the event name and arguments according to your contract
@@ -275,37 +323,24 @@ const Feedback = () => {
         });
       
         console.log("Filtered events:", filteredEvents);
-        //console.log("Latest block: ", latest);
-
-        // const logs = await contract.getPastEvents("ScoreAdded", {
-        //   fromBlock: latest - 10, //could be last 100 blocks
-        //   toBlock: latest + 1,
-        //   filter: { token: tokenID },
-        //   //filter: { token: tokenID, user_id: userID, sellerId: sellerID}
-        // });
+        const logs = await web3Webcontract.getPastEvents("ScoreAdded", {
+          fromBlock: latest -10, //could be last 100 blocks
+          toBlock: latest+1,
+          filter: { token: tokenID}
+        });
+        console.log("Logs", logs, `${logs.length} logs`);
+        for (let i = 0; i < logs.length; i++) {
+          let j = logs[i].returnValues;
         
-        // console.log("Logs", logs, `${logs.length} logs`);
-        // for (let i = 0; i < logs.length; i++) {
-        //   let j = logs[i].returnValues;
-        //   //if (j['Result'])
-        //   //console.log("J value: ", j[0]);
-        //   //console.log("J value token: ", j['token']);
-        //   //console.log("TokenID: ", tokenID);
-        //   if (
-        //     j["token"] === tokenID &&
-        //     j["sellerId"] === sellerID &&
-        //     j["user_id"] === userID
-        //   ) {
-        //     console.log(
-        //       "token, sellerId and user id have been added to the blockchain"
-        //     );
-        //     //modal insertion
-        //     setOpen(true);
-        //     //showModal();
-
-        //     break;
-        //   }
-        // }
+          if (j['token'] === tokenID && j['sellerId'] === sellerID && j['user_id'] === userID){
+            console.log("token, sellerId and user id have been added to the blockchain");
+            //modal insertion
+            setOpen(true);
+            //showModal();
+            
+            break;
+          }
+        }
       } else {
         setTokenUsedModal(true);
         console.log("token is already used/not valid!");
