@@ -38,6 +38,7 @@ web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 
 print(f"Oracle Address: {oracle_address}")
 
+
 async def GetGasPrice():
     try:
         gas_price = await web3.eth.gas_price
@@ -91,7 +92,7 @@ def handle_event(event):
     if len(result) == 0:
         result = RequestScoreEvent.processReceipt(receipt, errors=DISCARD)
         doc_ref = db.collection("individual_scores").document(
-            "jz9uo3kVGcD65PW0kkEg") 
+            "mjHPrqCFPf8y3vAJ9vE1")
 
         args = result[0]["args"]
         seller_id = args["sellerId"]
@@ -107,7 +108,7 @@ def handle_event(event):
             transaction = web_contract.functions.add(seller_id, token_val, user_id, enc_score).buildTransaction({
                 "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                 "gas": 5000000,
-                "gasPrice": web3.eth.gas_price,
+                "gasPrice": web3.eth.gas_price*2,
                 "nonce": web3.eth.getTransactionCount(account.address),
             })
 
@@ -119,11 +120,12 @@ def handle_event(event):
                 signed_transaction.rawTransaction)
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
             if tx_receipt:
-                print("Transaction receipt recieved" )
+                print("Transaction receipt recieved")
             else:
                 print("Transaction reciept not recieved")
         except Exception as e:
-            print("Error while sending Add transaction, when handling RequestScoreEvent:", e)
+            print(
+                "Error while sending Add transaction, when handling RequestScoreEvent:", e)
 
         # web_contract.functions.add(seller_id, token_val, user_id, enc_score)act()
 
@@ -169,7 +171,7 @@ def handle_event(event):
                     gateway_address, aggr_score, off_chain_path).buildTransaction({
                         "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                         "gas": 5000000,
-                        "gasPrice": web3.eth.gas_price,
+                        "gasPrice": web3.eth.gas_price*2,
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
 
@@ -181,11 +183,12 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                    print("Transaction receipt recieved" )
+                    print("Transaction receipt recieved")
                 else:
                     print("Transaction reciept not recieved")
             except Exception as e:
-                print("Error while sending ReturnToGateway transaction, when handling RequestValueEvent:", e)
+                print(
+                    "Error while sending ReturnToGateway transaction, when handling RequestValueEvent:", e)
 
                 # Transfer to onchain smart contract
                 # onchain_contract.functions.add_rep_data(
@@ -198,7 +201,7 @@ def handle_event(event):
                     seller_id, aggr_score).buildTransaction({
                         "chainId": 5,  # Replace with the chain ID of the Sepolia Testnet
                         "gas": 5000000,
-                        "gasPrice": web3.eth.gas_price,
+                        "gasPrice": web3.eth.gas_price*2,
                         "nonce": web3.eth.getTransactionCount(account.address),
                     })
 
@@ -210,12 +213,13 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                     print("Transaction receipt recieved" )
+                    print("Transaction receipt recieved")
                 else:
-                    print("Transaction reciept not recieved")         
-                    
+                    print("Transaction reciept not recieved")
+
             except Exception as e:
-                print("Error while sending Add_Rep_data transaction, when handling RequestValueEvent:", e)
+                print(
+                    "Error while sending Add_Rep_data transaction, when handling RequestValueEvent:", e)
 
             with open("off-chain.json", "r+") as file:
                 json_data = json.load(file)
@@ -232,7 +236,6 @@ def handle_event(event):
 
                 file.seek(0)
                 json.dump(json_data, file)
-
                 doc_ref.set(json_data)
 
             # Write data off-chain onto a local csv file
