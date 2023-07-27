@@ -272,7 +272,7 @@ def get_rep():
         "reputation": [
             {
                 "issuer": "reputable",
-                "issuerUri": "https://reputable-swagger-api.onrender.com/reputation?sellerId=" + seller_id,
+                "issuerUri": "https://reputable-swagger-api.onrender.com/reputation?sellerId=" + str(seller_id),
                 "issuerUid": seller_id,
                 "score": dec_score,
                 "proof": tx_hash,

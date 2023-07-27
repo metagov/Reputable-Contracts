@@ -32,7 +32,7 @@ seller_ids = [11, 12, 13]
 db = firestore.client()
 
 # Fetch reputation and verify reputation for each seller
-for seller_id in seller_ids:
+for seller_id in seller_map:
     if str(seller_id) in seller_map:
         ethereum_address = seller_map[str(seller_id)]
 
@@ -40,12 +40,19 @@ for seller_id in seller_ids:
         reputation_url = f'https://reputable-swagger-api.onrender.com/reputation?sellerId={seller_id}'
         reputation_response = requests.get(reputation_url)
         print(reputation_response)
+         # Check if the response is 500
+        if reputation_response.status_code == 500:
+            print(f"Response 500 received for seller ID {seller_id} Reputation")
+            continue
         reputation = reputation_response.json()
         print(reputation)
 
         # Verify reputation
         verify_url = f'https://reputable-swagger-api.onrender.com/verify_reputation?sellerId={seller_id}'
         verify_response = requests.get(verify_url)
+        if verify_response.status_code == 500:
+            print(f"Response 500 received for seller ID {seller_id} Reputation Verification")
+            continue
         print(verify_response)
         verify_reputation = verify_response.json()
 
