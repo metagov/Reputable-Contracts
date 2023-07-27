@@ -14,7 +14,6 @@ daoURIPrefix = "https://firestore.googleapis.com/v1/projects/reputable-f7202/dat
 attesterURI = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/memberAttestationURI"
 completeAttestationURI = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/completeAttestationURI"
 issuerName = "REPUTABLE"
-issuerId = uuid.uuid4()
 
 # Initialize JSONBin
 
@@ -53,7 +52,9 @@ def publish_uri(json_data):
 # Fetch reputation and verify reputation for each seller
 for seller_id in seller_map:
     if str(seller_id) in seller_map:
-        ethereum_address = seller_map[str(seller_id)]
+        ethereum_address = seller_map[str(seller_id)]['address']
+        issuerId = seller_map[str(seller_id)]['issuerId']
+
 
         # Fetch reputation
         reputation_url = f'https://reputable-swagger-api.onrender.com/reputation?sellerId={seller_id}'

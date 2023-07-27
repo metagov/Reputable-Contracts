@@ -26,15 +26,14 @@ firebase_admin.initialize_app(cred)
 with open('sellerData.json', 'r') as f:
     seller_map = json.load(f)
 
-seller_ids = [11, 12, 13]
-
 # Create Firestore client
 db = firestore.client()
 
 # Fetch reputation and verify reputation for each seller
 for seller_id in seller_map:
     if str(seller_id) in seller_map:
-        ethereum_address = seller_map[str(seller_id)]
+        ethereum_address = seller_map[str(seller_id)]['address']
+        issuerId = seller_map[str(seller_id)]['issuerId']
 
         # Fetch reputation
         reputation_url = f'https://reputable-swagger-api.onrender.com/reputation?sellerId={seller_id}'
@@ -70,7 +69,7 @@ for seller_id in seller_map:
             "type": "membershipAttestation",
             "id": ethereum_address,
             "internale_memberID": seller_id,
-            "reputation": reputation['score'],
+            "reputation": reputation['reputation score'],
             "verify_reputation": {
                 "score": verify_reputation['score'],
                 "timestamp": verify_reputation['timestamp'],
