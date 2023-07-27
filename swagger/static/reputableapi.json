@@ -190,7 +190,10 @@
                            "description": "the individual scores of buyers who rated the specified seller",
                            "properties": {
                               "individual scores": {
-                                 "type": "array"
+                                 "type": "array",
+                                 "items": {
+                                    "type": "object"
+                                 }
                               }
                            }
                         }
@@ -249,15 +252,14 @@
       "/get_and_verify_reputation": {
          "summary": "Get and Verify Reputation Endpoint",
          "get": {
-            "description": "Get and verify reputation of a service/seller",
+            "description": "Query reputation of a service/seller and verify it",
             "parameters": [
                {
                   "in": "query",
                   "name": "sellerId",
                   "required": true,
                   "schema": {
-                     "type": "integer",
-                     "example": 11
+                     "type": "integer"
                   }
                }
             ],
