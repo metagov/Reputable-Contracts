@@ -1,14 +1,50 @@
 {
-    "11": "0xb7a000c543ac7e39fdf4fc391b3900078e070325",
-    "12": "0x1ef94bea1542da6d61c68f26f7a3933a240c87bd",
-    "13": "0x710dd7f6e3e47ddc08fac4795694d7ec4506c4e6",
-    "100": "0x977841f226482f7938e179f6fc6f45c175252114",
-    "101": "0x3a11f0272dc8bc3842a7bc834e3e79bd474cf43a",
-    "102": "0xdf2cdaf893d04b6032e941669f77086e9caf5d86",
-    "103": "0x7926dad04fe7c482425d784985b5e24aea03c9ff",
-    "104": "0x3121a6f0c30b0ab4c713fa66d3f369ac12d364fd",
-    "105": "0x7ace0b7a0cfb2980aa25310af5c2602144d58db2",
-    "106": "0x1e8ee48d0621289297693fc98914da2efdce1477",
-    "107": "0x1d829bdbd534a70fdf27e959e790ef1d64e10ef8",
-    "108": "0x88e50e06efb2b748e2b9670d2a6668237167382b"
+    "11": {
+        "address": "0xb7a000c543ac7e39fdf4fc391b3900078e070325",
+        "issuerId": "1db6bd44-e73e-497d-b221-178642834643"
+    },
+    "12": {
+        "address": "0x1ef94bea1542da6d61c68f26f7a3933a240c87bd",
+        "issuerId": "e0b95886-f542-4ceb-8ef5-87109b73d791"
+    },
+    "13": {
+        "address": "0x710dd7f6e3e47ddc08fac4795694d7ec4506c4e6",
+        "issuerId": "527f05fe-5699-42dd-a508-b2e5210f4fd5"
+    },
+    "100": {
+        "address": "0x977841f226482f7938e179f6fc6f45c175252114",
+        "issuerId": "3b44679a-cf10-4c06-b70d-743ad7f0cfde"
+    },
+    "101": {
+        "address": "0x3a11f0272dc8bc3842a7bc834e3e79bd474cf43a",
+        "issuerId": "b30aeb36-f3b3-4fb1-9db7-bff3ab8f1ab5"
+    },
+    "102": {
+        "address": "0xdf2cdaf893d04b6032e941669f77086e9caf5d86",
+        "issuerId": "23481a1e-815b-4d79-ae95-c76a42d33268"
+    },
+    "103": {
+        "address": "0x7926dad04fe7c482425d784985b5e24aea03c9ff",
+        "issuerId": "d551cfdd-6b5d-4710-bb70-a8f937260ca5"
+    },
+    "104": {
+        "address": "0x3121a6f0c30b0ab4c713fa66d3f369ac12d364fd",
+        "issuerId": "8487233c-56d5-4c9c-bede-4c2616b0372b"
+    },
+    "105": {
+        "address": "0x7ace0b7a0cfb2980aa25310af5c2602144d58db2",
+        "issuerId": "6c8a3213-dc8e-425e-aa88-412304982f88"
+    },
+    "106": {
+        "address": "0x1e8ee48d0621289297693fc98914da2efdce1477",
+        "issuerId": "83473b8c-f1bd-4e94-8db9-70b33d94880f"
+    },
+    "107": {
+        "address": "0x1d829bdbd534a70fdf27e959e790ef1d64e10ef8",
+        "issuerId": "e3972a51-4f4e-4a2f-ac7d-3b5534aef6e5"
+    },
+    "108": {
+        "address": "0x88e50e06efb2b748e2b9670d2a6668237167382b",
+        "issuerId": "2062fc61-175d-4907-95af-5f6d7b33578e"
+    }
 }

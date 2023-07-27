@@ -10,7 +10,7 @@ const data = {
       title: "Bananas",
       desc: "",
       price: 1.99,
-      sellerID: 311,
+      sellerID: 11,
       companyName: "Tesco",
     },
     {
@@ -19,7 +19,7 @@ const data = {
       title: "Mangoes",
       desc: "",
       price: 2.99,
-      sellerID: 312,
+      sellerID: 12,
       companyName: "Asda",
     },
     {
@@ -28,7 +28,7 @@ const data = {
       title: "Oranges",
       desc: "",
       price: 1.45,
-      sellerID: 313,
+      sellerID: 13,
       companyName: "Sainsbury",
     },
     {
@@ -46,7 +46,7 @@ const data = {
       title: "Oranges",
       desc: "",
       price: 1.45,
-      sellerID: 401,
+      sellerID: 101,
       companyName: "Mendes",
     },
     {
@@ -55,7 +55,7 @@ const data = {
       title: "Oranges",
       desc: "",
       price: 1.45,
-      sellerID: 402,
+      sellerID: 102,
       companyName: "Aman",
     },
     {
@@ -64,7 +64,7 @@ const data = {
       title: "Oranges",
       desc: "",
       price: 1.45,
-      sellerID: 403,
+      sellerID: 103,
       companyName: "Christine",
     },
     {
@@ -73,7 +73,7 @@ const data = {
       title: "Oranges",
       desc: "",
       price: 1.45,
-      sellerID: 404,
+      sellerID: 104,
       companyName: "Rashmi",
     },
   ],

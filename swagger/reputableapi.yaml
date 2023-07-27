@@ -165,8 +165,9 @@ paths:
                   used:
                     type: boolean
   /get_and_verify_reputation:
-    get:
       summary: Get and Verify Reputation Endpoint
+    get:
+      description: Get and Verify Reputation Endpoint
       parameters:
         - name: sellerId
           in: query

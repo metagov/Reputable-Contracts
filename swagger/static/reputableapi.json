@@ -137,10 +137,10 @@
                   "in": "query",
                   "name": "userId",
                   "description": "id of a buyer",
-		          "required": true,
-		          "schema": {
-		              "type": "integer",
-		              "example": 1234
+                  "required": true,
+                  "schema": {
+                     "type": "integer",
+                     "example": 1234
                   }
                }
             ],
@@ -220,7 +220,7 @@
                   "name": "token",
                   "description": "token used by the buyer to rate a seller",
                   "required": true,
-                   "schema": {
+                  "schema": {
                      "type": "integer",
                      "example": 104
                   }
@@ -247,8 +247,9 @@
          }
       },
       "/get_and_verify_reputation": {
+         "summary": "Get and Verify Reputation Endpoint",
          "get": {
-            "summary": "Get and Verify Reputation Endpoint",
+            "description": "Get and verify reputation of a service/seller",
             "parameters": [
                {
                   "in": "query",
