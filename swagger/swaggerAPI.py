@@ -174,7 +174,7 @@ def oracle_address():
         print("Transaction receipt:", tx_receipt)
     except Exception as e:
         print("Error while sending transaction:", e)
-    
+
                 # sellerid, token_val, user_id, uint val(1 or 0)
                 # userid example 1234
                 # token example 104
@@ -246,13 +246,43 @@ def get_rep():
     # uses seller id to make a request to the ... smart contract with web3
     # score = get_rep_data(seller_id)
     # return jsonify("score": score)
-    seller_id = request.args.get("sellerId")
+    seller_id = int(request.args.get("sellerId"))
     print(seller_id)
-    rep = onchain_contract.functions.get_rep_data(int(seller_id)).call()
+    rep = onchain_contract.functions.get_rep_data(seller_id).call()
     print("rep" + rep)  # fails if rep is empty
     enc_score = paillier.EncryptedNumber(pub, int(rep))
     dec_score = priv.decrypt(enc_score)
-    return jsonify({"score": dec_score})
+    doc_ref = db.collection("individual_scores").document(
+        "mjHPrqCFPf8y3vAJ9vE1")
+    docs = doc_ref.get().to_dict()
+    doc_list = []
+    data = docs['data']
+    tx_hash = ''
+    timestamp = ''
+    for i in data:
+        if i['seller_id'] == seller_id:
+            h = i['tx_hash']
+            t = i['Timestamp']
+            break
+
+    response = {
+        "@context": "https://www.daostar.org/schemas",
+        "type": "arrayAttestation",
+        "issuer": "https://reputable-swagger-api.onrender.com/reputation",
+        "reputation": [
+            {
+                "issuer": "reputable",
+                "issuerUri": "https://reputable-swagger-api.onrender.com/reputation?sellerId=" + seller_id,
+                "issuerUid": seller_id,
+                "score": dec_score,
+                "proof": tx_hash,
+                "dateOfEngagement": timestamp,
+                "expiration": None
+            }
+        ]
+    }
+
+    return jsonify(response)
     # return jsonify({"reputation score": rep})
 
 
@@ -353,12 +383,12 @@ def get_ind_scores():
     docs = doc_ref.get().to_dict()
     #docs = docs.to_dict()
     data = docs['data']
-    
+
     for i in data:
         print("length data: ", len(data))
         if i['seller_id'] == int(seller_id):
             ind_scores.append(i['individual_score'])
-            
+
     #for now only returns the first data meeting the criteria
 
         #implement getting data from the json data on firebase (firestore)
@@ -410,14 +440,14 @@ def rep_score_post():
         #time.sleep(2)
         score = onchain_contract.functions.get_rep_data(seller_id).call()
         print("score" + score)
-        time.sleep(2) 
+        time.sleep(2)
         #wait 2 secs
             #call the onchain function to get the aggr score.
             ##Send this to the aggregator
             ##score = call onchain function to get the aggr score
         #else:
         #    score = "Only Post requests"
-        
+
         #make it into an enc number using pub. Decrypt
         enc_score = paillier.EncryptedNumber(pub, int(score))
         dec_score = priv.decrypt(enc_score)
@@ -443,7 +473,7 @@ def is_token_used():
         used_return = True
     else:
         used_return = False
-    
+
     return jsonify({"used": used_return})
 
 #addpositiveScore(sellerID, token) - uses isTokenUsed
@@ -451,8 +481,8 @@ def is_token_used():
 #Add aggrScore(sellerId, enc_aggr_score)
 #EncryptZero(returns encrypted number in json)
 #EnccryptOne(returns encrypted 0 in json)
-    
-    
+
+
 #add other endpoints
 #aggregate endpoints with json data passed to it.
 #handle with try/catch data being sent.
