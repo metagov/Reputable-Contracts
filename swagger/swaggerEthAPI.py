@@ -122,7 +122,7 @@ with open(web_compiled_path) as file:
     web_abi = web_json['abi']
 web_contract = web3.eth.contract(address=web_address, abi=web_abi)
 
-firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-b7df1/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
+firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
 
 app = Flask(__name__)
 

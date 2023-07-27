@@ -164,3 +164,46 @@ paths:
                 properties:
                   used:
                     type: boolean
+  /get_and_verify_reputation:
+    get:
+      summary: Get and Verify Reputation Endpoint
+      parameters:
+        - name: sellerId
+          in: query
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reputation:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        issuer:
+                          type: string
+                          description: The issuer of the reputation.
+                        issuerUri:
+                          type: string
+                          description: The issuer URI.
+                        issuerUid:
+                          type: integer
+                          description: The issuer UID.
+                        score:
+                          type: number
+                          description: The reputation score.
+                        proof:
+                          type: string
+                          description: The proof of the reputation score.
+                        dateOfEngagement:
+                          type: string
+                          description: The date of engagement.
+                        expiration:
+                          type: string
+                          description: The expiration date (if applicable).

@@ -152,7 +152,7 @@ def handle_event(event):
             user_id = args["userId"]
             enc_scores = args["array"]
 
-            off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-b7df1/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
+            off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
             aggr_score = str(aggregate(seller_addr=None, ind_data=enc_scores))
             print("Aggregate Score: ", aggr_score)
             timestamp = str(datetime.now())

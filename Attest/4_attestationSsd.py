@@ -39,7 +39,7 @@ fdb = firestore.client()
 with open('sellerData.json', 'r') as f:
     seller_map = json.load(f)
 
-seller_ids = [11, 12, 13]
+#seller_ids = [11, 12, 13]
 
 
 def publish_uri(json_data):

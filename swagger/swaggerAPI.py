@@ -117,7 +117,7 @@ with open(web_compiled_path) as file:
     web_abi = web_json['abi']
 web_contract = web3.eth.contract(address=web_address, abi=web_abi)
 
-firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-b7df1/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
+firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
 
 app = Flask(__name__)
 
@@ -238,6 +238,46 @@ def test():
     return jsonify({"hash": h, "timestamp": t})
     # return jsonify({"data": data})#jsonify({"test": 123})
 
+@cross_origin()
+@app.route("/get_and_verify_reputation")
+def get_and_verify_rep():
+    seller_id = int(request.args.get("sellerId"))
+    rep = onchain_contract.functions.get_rep_data(seller_id).call()
+
+    enc_score = paillier.EncryptedNumber(pub, int(rep))
+    dec_score = priv.decrypt(enc_score)
+
+    doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+    docs = doc_ref.get().to_dict()
+    data = docs['data']
+    tx_hash = ''
+    timestamp = ''
+    for i in data:
+        if i['seller_id'] == seller_id:
+            h = i['tx_hash']
+            t = i['Timestamp']
+            break
+
+    response = {
+        "@context": "https://www.daostar.org/schemas",
+        "type": "arrayAttestation",
+        "issuer": "https://reputable-swagger-api.onrender.com/reputation",
+        "reputation": [
+            {
+                "issuer": "reputable",
+                "issuerUri": "https://reputable-swagger-api.onrender.com/reputation?sellerId=" + str(seller_id),
+                "issuerUid": seller_id,
+                "score": dec_score,
+                "proof": tx_hash,
+                "dateOfEngagement": timestamp,
+                "expiration": None
+            }
+        ]
+    }
+
+    return jsonify(response)
+CORS(app, support_credentials=True, resources=r'/get_and_verify_reputation/*')
+
 
 @app.route("/reputation")
 # GET
@@ -282,8 +322,8 @@ def get_rep():
         ]
     }
 
-    return jsonify(response)
-    # return jsonify({"reputation score": rep})
+    #return jsonify(response)
+    return jsonify({"reputation score": dec_score})
 
 
 CORS(app, support_credentials=True, resources=r'/verify_reputation/*')
