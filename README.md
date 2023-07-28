@@ -11,7 +11,7 @@ git clone git@github.com:thelastjosh/REPUTABLE.git
 The below instructions to run the project are derived from this document
 https://github.com/thelastjosh/REPUTABLE/blob/prince/ONTOCHAIN_D4_REPUTABLE_VF.pdf
 
-Please make sure to clone the `with-rpc` branch
+Please make sure to clone the `master` branch
 and also you are using Node v16, if not
 ```
 nvm use 16
