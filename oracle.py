@@ -39,21 +39,23 @@ web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 print(f"Oracle Address: {oracle_address}")
 
 
-def post_reputation_score(seller_id):
-    url = "https://reputable-swagger-api.onrender.com/reputation_score"
-    payload = {
-        "seller_id": seller_id
-    }
+def make_post_request(seller_id):
+    url = f'https://reputable-swagger-api.onrender.com/reputation_score?sellerId='+str(seller_id)
+    headers = {'accept': 'application/json'}
+    data = ''
 
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, headers=headers, data=data)
         if response.status_code == 200:
-            return response.json()
+            print(f'Posted Reputation')
+            return None
         else:
-            return f"Error: {response.status_code} - {response.text}"
-    except requests.exceptions.RequestException as e:
-        return f"Error: {e}"
+            print(f"Request failed with status code {response.status_code}: {response.text}")
+            return None
 
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
 
 async def GetGasPrice():
     try:
@@ -136,10 +138,13 @@ def handle_event(event):
                 signed_transaction.rawTransaction)
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
             if tx_receipt:
-                print("Transaction receipt recieved")
-                post_reputation_score(seller_id)
+                print("Transaction receipt recieved for add()")
+                print("Making POST request for"+ str(seller_id))
+                if (type(seller_id )!= 'NoneType'):
+                    make_post_request(seller_id)
+
             else:
-                print("Transaction reciept not recieved")
+                print("Transaction reciept not recieved for add()")
         except Exception as e:
             print(
                 "Error while sending Add transaction, when handling RequestScoreEvent:", e)
@@ -200,9 +205,9 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                    print("Transaction receipt recieved")
+                    print("Transaction receipt recieved for returnToGateway()")
                 else:
-                    print("Transaction reciept not recieved")
+                    print("Transaction reciept not recieved for returnToGateway()")
             except Exception as e:
                 print(
                     "Error while sending ReturnToGateway transaction, when handling RequestValueEvent:", e)
@@ -230,9 +235,9 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                    print("Transaction receipt recieved")
+                    print("Transaction receipt recieved for add_rep_data()")
                 else:
-                    print("Transaction reciept not recieved")
+                    print("Transaction reciept not recieved for add_rep_data()")
 
             except Exception as e:
                 print(
