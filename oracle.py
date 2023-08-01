@@ -9,7 +9,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from datetime import datetime
 import phe
-
+import requests
 import os
 from dotenv import load_dotenv
 load_dotenv('.env')
@@ -37,6 +37,22 @@ onchain_address = os.environ.get('REACT_APP_GORELI_ONCHAIN_ADDRESS')
 web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 
 print(f"Oracle Address: {oracle_address}")
+
+
+def post_reputation_score(seller_id):
+    url = "https://reputable-swagger-api.onrender.com/reputation_score"
+    payload = {
+        "seller_id": seller_id
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return f"Error: {response.status_code} - {response.text}"
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
 
 
 async def GetGasPrice():
@@ -121,6 +137,7 @@ def handle_event(event):
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
             if tx_receipt:
                 print("Transaction receipt recieved")
+                post_reputation_score(seller_id)
             else:
                 print("Transaction reciept not recieved")
         except Exception as e:
