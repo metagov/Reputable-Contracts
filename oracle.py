@@ -36,7 +36,7 @@ gateway_address = os.environ.get('REACT_APP_GORELI_GATEWAY_ADDRESS')
 onchain_address = os.environ.get('REACT_APP_GORELI_ONCHAIN_ADDRESS')
 web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 
-print(f"Oracle Address: {oracle_address}")
+print(f"Environment varibales initialized")
 
 
 def make_post_request(seller_id):
@@ -110,7 +110,7 @@ def handle_event(event):
     if len(result) == 0:
         result = RequestScoreEvent.processReceipt(receipt, errors=DISCARD)
         doc_ref = db.collection("individual_scores").document(
-            "mjHPrqCFPf8y3vAJ9vE1")
+            "offChainData")
 
         args = result[0]["args"]
         seller_id = args["sellerId"]
@@ -168,7 +168,7 @@ def handle_event(event):
 
         try:
             doc_ref = db.collection("individual_scores").document(
-                "mjHPrqCFPf8y3vAJ9vE1")
+                "offChainData")
             args = result[0]["args"]
 
             # campaign_id = args["campaignId"]
@@ -176,7 +176,7 @@ def handle_event(event):
             user_id = args["userId"]
             enc_scores = args["array"]
 
-            off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
+            off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/offChainData"
             aggr_score = str(aggregate(seller_addr=None, ind_data=enc_scores))
             print("Aggregate Score: ", aggr_score)
             timestamp = str(datetime.now())
@@ -380,7 +380,7 @@ cred = credentials.Certificate('./src/abi/reputable.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+doc_ref = db.collection("individual_scores").document("offChainData")
 
 
 # # Oracle SC will be detailed here:
