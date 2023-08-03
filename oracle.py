@@ -139,7 +139,7 @@ def handle_event(event):
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
             if tx_receipt:
                 print("Transaction receipt recieved for add()")
-                print("Making POST request for"+ str(seller_id))
+                print("Making POST request for "+ str(seller_id))
                 if (type(seller_id )!= 'NoneType'):
                     make_post_request(seller_id)
 
