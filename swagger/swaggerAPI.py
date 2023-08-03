@@ -270,8 +270,8 @@ def get_and_verify_rep():
                 "issuerUri": "https://reputable-swagger-api.onrender.com/reputation?sellerId=" + str(seller_id),
                 "issuerUid": seller_id,
                 "score": dec_score,
-                "proof": tx_hash,
-                "dateOfEngagement": timestamp,
+                "proof": h,
+                "dateOfEngagement": t,
                 "expiration": None
             }
         ]
