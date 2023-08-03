@@ -72,13 +72,15 @@ with open("phe_private_key.priv", "r") as f:
 
 pub, priv = keypair_load_pyp(pub_jwk, priv_jwk)
 
-cred = credentials.Certificate('reputable.json')
+cred = credentials.Certificate('swagger/reputable.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 doc_ref = db.collection("individual_scores").document("offChainData")
 if doc_ref is not None:
     print("document initialized")
-    #print(doc_ref.get().to_dict())
+    docs = doc_ref.get()
+    docs = docs.to_dict()
+    print(docs)
 
 # blockchain_address = 'HTTP://127.0.0.1:8545'
 # # Client instance to interact with the blockchain
@@ -334,11 +336,12 @@ CORS(app, support_credentials=True, resources=r'/verify_reputation/*')
 # get Request
 def verifyReputation():
     seller_id = request.args.get("sellerId")
-    doc_ref = db.collection("individual_scores").document(
-        "offChainData")
+    doc_ref = db.collection("individual_scores").document("offChainData")
     # emp_ref = db.collection('individual socre')
     # docs = doc_ref.stream()
     docs = doc_ref.get().to_dict()
+    print(docs)
+
     # docs = docs.to_dict()
     doc_list = []
     # for doc in docs:
