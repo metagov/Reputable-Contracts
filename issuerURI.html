@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>JSON Data Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    pre {
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>JSON Data</h1>
+  <pre id="jsonDataContainer"></pre>
+
+  <script>
+    const jsonData = {
+      "@context": "https://daostar.org/schemas",
+      "type": "issuer",
+      "name": "Reputable",
+      "description": "A on-chain service for reputation developed by the REPUTABLE team and the EU NGI's ONTOCHAIN project.",
+      "memberAttestationsURI:sellerId": "https://reputable-swagger-api.onrender.com/get_and_verify_reputation?sellerId=:sellerId"
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const jsonDataContainer = document.getElementById('jsonDataContainer');
+      jsonDataContainer.textContent = JSON.stringify(jsonData, null, 2);
+    });
+  </script>
+</body>
+</html>
