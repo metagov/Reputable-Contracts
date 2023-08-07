@@ -72,13 +72,15 @@ with open("phe_private_key.priv", "r") as f:
 
 pub, priv = keypair_load_pyp(pub_jwk, priv_jwk)
 
-cred = credentials.Certificate('reputable.json')
+cred = credentials.Certificate('swagger/reputable.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
-doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+doc_ref = db.collection("individual_scores").document("offChainData")
 if doc_ref is not None:
     print("document initialized")
-    #print(doc_ref.get().to_dict())
+    docs = doc_ref.get()
+    docs = docs.to_dict()
+    print(docs)
 
 # blockchain_address = 'HTTP://127.0.0.1:8545'
 # # Client instance to interact with the blockchain
@@ -117,7 +119,7 @@ with open(web_compiled_path) as file:
     web_abi = web_json['abi']
 web_contract = web3.eth.contract(address=web_address, abi=web_abi)
 
-firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
+firestore_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/offChainData"
 
 app = Flask(__name__)
 
@@ -206,7 +208,7 @@ def oracle_address():
 def test():
     seller_id = request.args.get("sellerId")
     doc_ref = db.collection("individual_scores").document(
-        "mjHPrqCFPf8y3vAJ9vE1")
+        "offChainData")
     # emp_ref = db.collection('individual socre')
     # docs = doc_ref.stream()
     docs = doc_ref.get()
@@ -247,7 +249,7 @@ def get_and_verify_rep():
     enc_score = paillier.EncryptedNumber(pub, int(rep))
     dec_score = priv.decrypt(enc_score)
 
-    doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+    doc_ref = db.collection("individual_scores").document("offChainData")
     docs = doc_ref.get().to_dict()
     data = docs['data']
     tx_hash = ''
@@ -268,8 +270,8 @@ def get_and_verify_rep():
                 "issuerUri": "https://reputable-swagger-api.onrender.com/reputation?sellerId=" + str(seller_id),
                 "issuerUid": seller_id,
                 "score": dec_score,
-                "proof": tx_hash,
-                "dateOfEngagement": timestamp,
+                "proof": h,
+                "dateOfEngagement": t,
                 "expiration": None
             }
         ]
@@ -293,7 +295,7 @@ def get_rep():
     enc_score = paillier.EncryptedNumber(pub, int(rep))
     dec_score = priv.decrypt(enc_score)
     doc_ref = db.collection("individual_scores").document(
-        "mjHPrqCFPf8y3vAJ9vE1")
+        "offChainData")
     docs = doc_ref.get().to_dict()
     doc_list = []
     data = docs['data']
@@ -334,11 +336,12 @@ CORS(app, support_credentials=True, resources=r'/verify_reputation/*')
 # get Request
 def verifyReputation():
     seller_id = request.args.get("sellerId")
-    doc_ref = db.collection("individual_scores").document(
-        "mjHPrqCFPf8y3vAJ9vE1")
+    doc_ref = db.collection("individual_scores").document("offChainData")
     # emp_ref = db.collection('individual socre')
     # docs = doc_ref.stream()
     docs = doc_ref.get().to_dict()
+    print(docs)
+
     # docs = docs.to_dict()
     doc_list = []
     # for doc in docs:
@@ -379,7 +382,7 @@ def get_ind_score():
     seller_id = request.args.get("sellerId")
     user_id = request.args.get("userId")
     doc_ref = db.collection("individual_scores").document(
-        "mjHPrqCFPf8y3vAJ9vE1")
+        "offChainData")
     # emp_ref = db.collection('individual socre')
     # docs = doc_ref.stream()
     docs = doc_ref.get().to_dict()
@@ -417,7 +420,7 @@ def get_ind_scores():
     #jsonify "scores": scores_array
     ind_scores = []
     seller_id = request.args.get("sellerId")
-    doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+    doc_ref = db.collection("individual_scores").document("offChainData")
     #emp_ref = db.collection('individual socre')
     #docs = doc_ref.stream()
     docs = doc_ref.get().to_dict()

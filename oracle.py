@@ -9,7 +9,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from datetime import datetime
 import phe
-
+import requests
 import os
 from dotenv import load_dotenv
 load_dotenv('.env')
@@ -36,8 +36,26 @@ gateway_address = os.environ.get('REACT_APP_GORELI_GATEWAY_ADDRESS')
 onchain_address = os.environ.get('REACT_APP_GORELI_ONCHAIN_ADDRESS')
 web_address = os.environ.get('REACT_APP_GORELI_WEB_ADDRESS')
 
-print(f"Oracle Address: {oracle_address}")
+print(f"Environment varibales initialized")
 
+
+def make_post_request(seller_id):
+    url = f'https://reputable-swagger-api.onrender.com/reputation_score?sellerId='+str(seller_id)
+    headers = {'accept': 'application/json'}
+    data = ''
+
+    try:
+        response = requests.post(url, headers=headers, data=data)
+        if response.status_code == 200:
+            print(f'Posted Reputation')
+            return None
+        else:
+            print(f"Request failed with status code {response.status_code}: {response.text}")
+            return None
+
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
 
 async def GetGasPrice():
     try:
@@ -92,7 +110,7 @@ def handle_event(event):
     if len(result) == 0:
         result = RequestScoreEvent.processReceipt(receipt, errors=DISCARD)
         doc_ref = db.collection("individual_scores").document(
-            "mjHPrqCFPf8y3vAJ9vE1")
+            "offChainData")
 
         args = result[0]["args"]
         seller_id = args["sellerId"]
@@ -120,9 +138,13 @@ def handle_event(event):
                 signed_transaction.rawTransaction)
             tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
             if tx_receipt:
-                print("Transaction receipt recieved")
+                print("Transaction receipt recieved for add()")
+                print("Making POST request for "+ str(seller_id))
+                if (type(seller_id )!= 'NoneType'):
+                    make_post_request(seller_id)
+
             else:
-                print("Transaction reciept not recieved")
+                print("Transaction reciept not recieved for add()")
         except Exception as e:
             print(
                 "Error while sending Add transaction, when handling RequestScoreEvent:", e)
@@ -146,7 +168,7 @@ def handle_event(event):
 
         try:
             doc_ref = db.collection("individual_scores").document(
-                "mjHPrqCFPf8y3vAJ9vE1")
+                "offChainData")
             args = result[0]["args"]
 
             # campaign_id = args["campaignId"]
@@ -154,7 +176,7 @@ def handle_event(event):
             user_id = args["userId"]
             enc_scores = args["array"]
 
-            off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/mjHPrqCFPf8y3vAJ9vE1"
+            off_chain_path = "https://firestore.googleapis.com/v1/projects/reputable-f7202/databases/(default)/documents/individual_scores/offChainData"
             aggr_score = str(aggregate(seller_addr=None, ind_data=enc_scores))
             print("Aggregate Score: ", aggr_score)
             timestamp = str(datetime.now())
@@ -183,9 +205,9 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                    print("Transaction receipt recieved")
+                    print("Transaction receipt recieved for returnToGateway()")
                 else:
-                    print("Transaction reciept not recieved")
+                    print("Transaction reciept not recieved for returnToGateway()")
             except Exception as e:
                 print(
                     "Error while sending ReturnToGateway transaction, when handling RequestValueEvent:", e)
@@ -213,9 +235,9 @@ def handle_event(event):
                     signed_transaction.rawTransaction)
                 tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
                 if tx_receipt:
-                    print("Transaction receipt recieved")
+                    print("Transaction receipt recieved for add_rep_data()")
                 else:
-                    print("Transaction reciept not recieved")
+                    print("Transaction reciept not recieved for add_rep_data()")
 
             except Exception as e:
                 print(
@@ -358,7 +380,7 @@ cred = credentials.Certificate('./src/abi/reputable.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-doc_ref = db.collection("individual_scores").document("mjHPrqCFPf8y3vAJ9vE1")
+doc_ref = db.collection("individual_scores").document("offChainData")
 
 
 # # Oracle SC will be detailed here:
